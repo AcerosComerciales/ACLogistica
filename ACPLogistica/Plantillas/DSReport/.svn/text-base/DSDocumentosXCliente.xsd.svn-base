@@ -1,0 +1,64 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<xs:schema id="DSDocumentosXCliente" targetNamespace="http://tempuri.org/DSDocumentosXCliente.xsd" xmlns:mstns="http://tempuri.org/DSDocumentosXCliente.xsd" xmlns="http://tempuri.org/DSDocumentosXCliente.xsd" xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata" xmlns:msprop="urn:schemas-microsoft-com:xml-msprop" attributeFormDefault="qualified" elementFormDefault="qualified">
+  <xs:annotation>
+    <xs:appinfo source="urn:schemas-microsoft-com:xml-msdatasource">
+      <DataSource DefaultConnectionIndex="0" FunctionsComponentName="QueriesTableAdapter" Modifier="AutoLayout, AnsiClass, Class, Public" SchemaSerializationMode="IncludeSchema" xmlns="urn:schemas-microsoft-com:xml-msdatasource">
+        <Connections />
+        <Tables />
+        <Sources />
+      </DataSource>
+    </xs:appinfo>
+  </xs:annotation>
+  <xs:element name="DSDocumentosXCliente" msdata:IsDataSet="true" msdata:UseCurrentLocale="true" msprop:EnableTableAdapterManager="true" msprop:Generator_DataSetName="DSDocumentosXCliente" msprop:Generator_UserDSName="DSDocumentosXCliente">
+    <xs:complexType>
+      <xs:choice minOccurs="0" maxOccurs="unbounded">
+        <xs:element name="Detalle" msprop:Generator_TableClassName="DetalleDataTable" msprop:Generator_TableVarName="tableDetalle" msprop:Generator_TablePropName="Detalle" msprop:Generator_RowDeletingName="DetalleRowDeleting" msprop:Generator_RowChangingName="DetalleRowChanging" msprop:Generator_RowEvHandlerName="DetalleRowChangeEventHandler" msprop:Generator_RowDeletedName="DetalleRowDeleted" msprop:Generator_UserTableName="Detalle" msprop:Generator_RowChangedName="DetalleRowChanged" msprop:Generator_RowEvArgName="DetalleRowChangeEvent" msprop:Generator_RowClassName="DetalleRow">
+          <xs:complexType>
+            <xs:sequence>
+              <xs:element name="Codigo" msprop:Generator_ColumnVarNameInTable="columnCodigo" msprop:Generator_ColumnPropNameInRow="Codigo" msprop:Generator_ColumnPropNameInTable="CodigoColumn" msprop:Generator_UserColumnName="Codigo" type="xs:string" minOccurs="0" />
+              <xs:element name="DOCVE_Codigo" msprop:Generator_ColumnVarNameInTable="columnDOCVE_Codigo" msprop:Generator_ColumnPropNameInRow="DOCVE_Codigo" msprop:Generator_ColumnPropNameInTable="DOCVE_CodigoColumn" msprop:Generator_UserColumnName="DOCVE_Codigo" type="xs:string" minOccurs="0" />
+              <xs:element name="Documento" msprop:Generator_ColumnVarNameInTable="columnDocumento" msprop:Generator_ColumnPropNameInRow="Documento" msprop:Generator_ColumnPropNameInTable="DocumentoColumn" msprop:Generator_UserColumnName="Documento" type="xs:string" minOccurs="0" />
+              <xs:element name="DOCVE_DescripcionCliente" msprop:Generator_ColumnVarNameInTable="columnDOCVE_DescripcionCliente" msprop:Generator_ColumnPropNameInRow="DOCVE_DescripcionCliente" msprop:Generator_ColumnPropNameInTable="DOCVE_DescripcionClienteColumn" msprop:Generator_UserColumnName="DOCVE_DescripcionCliente" type="xs:string" minOccurs="0" />
+              <xs:element name="DOCVE_FechaDocumento" msprop:Generator_ColumnVarNameInTable="columnDOCVE_FechaDocumento" msprop:Generator_ColumnPropNameInRow="DOCVE_FechaDocumento" msprop:Generator_ColumnPropNameInTable="DOCVE_FechaDocumentoColumn" msprop:Generator_UserColumnName="DOCVE_FechaDocumento" type="xs:string" minOccurs="0" />
+              <xs:element name="TIPOS_TipoMoneda" msprop:Generator_ColumnVarNameInTable="columnTIPOS_TipoMoneda" msprop:Generator_ColumnPropNameInRow="TIPOS_TipoMoneda" msprop:Generator_ColumnPropNameInTable="TIPOS_TipoMonedaColumn" msprop:Generator_UserColumnName="TIPOS_TipoMoneda" type="xs:string" minOccurs="0" />
+              <xs:element name="DOCVE_ImporteVenta" msprop:Generator_ColumnVarNameInTable="columnDOCVE_ImporteVenta" msprop:Generator_ColumnPropNameInRow="DOCVE_ImporteVenta" msprop:Generator_ColumnPropNameInTable="DOCVE_ImporteVentaColumn" msprop:Generator_UserColumnName="DOCVE_ImporteVenta" type="xs:string" minOccurs="0" />
+              <xs:element name="DOCVE_ImporteIgv" msprop:Generator_ColumnVarNameInTable="columnDOCVE_ImporteIgv" msprop:Generator_ColumnPropNameInRow="DOCVE_ImporteIgv" msprop:Generator_ColumnPropNameInTable="DOCVE_ImporteIgvColumn" msprop:Generator_UserColumnName="DOCVE_ImporteIgv" type="xs:string" minOccurs="0" />
+              <xs:element name="DOCVE_TotalVenta" msprop:Generator_ColumnVarNameInTable="columnDOCVE_TotalVenta" msprop:Generator_ColumnPropNameInRow="DOCVE_TotalVenta" msprop:Generator_ColumnPropNameInTable="DOCVE_TotalVentaColumn" msprop:Generator_UserColumnName="DOCVE_TotalVenta" type="xs:string" minOccurs="0" />
+              <xs:element name="DOCVE_ImportePercepcion" msprop:Generator_ColumnVarNameInTable="columnDOCVE_ImportePercepcion" msprop:Generator_ColumnPropNameInRow="DOCVE_ImportePercepcion" msprop:Generator_ColumnPropNameInTable="DOCVE_ImportePercepcionColumn" msprop:Generator_UserColumnName="DOCVE_ImportePercepcion" type="xs:string" minOccurs="0" />
+              <xs:element name="DOCVE_TotalPagar" msprop:Generator_ColumnVarNameInTable="columnDOCVE_TotalPagar" msprop:Generator_ColumnPropNameInRow="DOCVE_TotalPagar" msprop:Generator_ColumnPropNameInTable="DOCVE_TotalPagarColumn" msprop:Generator_UserColumnName="DOCVE_TotalPagar" type="xs:string" minOccurs="0" />
+              <xs:element name="GUIAR_Codigo" msprop:Generator_ColumnVarNameInTable="columnGUIAR_Codigo" msprop:Generator_ColumnPropNameInRow="GUIAR_Codigo" msprop:Generator_ColumnPropNameInTable="GUIAR_CodigoColumn" msprop:Generator_UserColumnName="GUIAR_Codigo" type="xs:string" minOccurs="0" />
+              <xs:element name="DocGuia" msprop:Generator_ColumnVarNameInTable="columnDocGuia" msprop:Generator_ColumnPropNameInRow="DocGuia" msprop:Generator_ColumnPropNameInTable="DocGuiaColumn" msprop:Generator_UserColumnName="DocGuia" type="xs:string" minOccurs="0" />
+              <xs:element name="TIPOS_MotivoTraslado" msprop:Generator_ColumnVarNameInTable="columnTIPOS_MotivoTraslado" msprop:Generator_ColumnPropNameInRow="TIPOS_MotivoTraslado" msprop:Generator_ColumnPropNameInTable="TIPOS_MotivoTrasladoColumn" msprop:Generator_UserColumnName="TIPOS_MotivoTraslado" type="xs:string" minOccurs="0" />
+              <xs:element name="GUIAR_DireccOrigen" msprop:Generator_ColumnVarNameInTable="columnGUIAR_DireccOrigen" msprop:Generator_ColumnPropNameInRow="GUIAR_DireccOrigen" msprop:Generator_ColumnPropNameInTable="GUIAR_DireccOrigenColumn" msprop:Generator_UserColumnName="GUIAR_DireccOrigen" type="xs:string" minOccurs="0" />
+              <xs:element name="GUIAR_DireccDestino" msprop:Generator_ColumnVarNameInTable="columnGUIAR_DireccDestino" msprop:Generator_ColumnPropNameInRow="GUIAR_DireccDestino" msprop:Generator_ColumnPropNameInTable="GUIAR_DireccDestinoColumn" msprop:Generator_UserColumnName="GUIAR_DireccDestino" type="xs:string" minOccurs="0" />
+              <xs:element name="GUIAR_DescripcionConductor" msprop:Generator_ColumnVarNameInTable="columnGUIAR_DescripcionConductor" msprop:Generator_ColumnPropNameInRow="GUIAR_DescripcionConductor" msprop:Generator_ColumnPropNameInTable="GUIAR_DescripcionConductorColumn" msprop:Generator_UserColumnName="GUIAR_DescripcionConductor" type="xs:string" minOccurs="0" />
+              <xs:element name="GUIAR_DescripcionTransportista" msprop:Generator_ColumnVarNameInTable="columnGUIAR_DescripcionTransportista" msprop:Generator_ColumnPropNameInRow="GUIAR_DescripcionTransportista" msprop:Generator_ColumnPropNameInTable="GUIAR_DescripcionTransportistaColumn" msprop:Generator_UserColumnName="GUIAR_DescripcionTransportista" type="xs:string" minOccurs="0" />
+              <xs:element name="GUIAR_DescripcionVehiculo" msprop:Generator_ColumnVarNameInTable="columnGUIAR_DescripcionVehiculo" msprop:Generator_ColumnPropNameInRow="GUIAR_DescripcionVehiculo" msprop:Generator_ColumnPropNameInTable="GUIAR_DescripcionVehiculoColumn" msprop:Generator_UserColumnName="GUIAR_DescripcionVehiculo" type="xs:string" minOccurs="0" />
+              <xs:element name="GUIAR_FechaEmision" msprop:Generator_ColumnVarNameInTable="columnGUIAR_FechaEmision" msprop:Generator_ColumnPropNameInRow="GUIAR_FechaEmision" msprop:Generator_ColumnPropNameInTable="GUIAR_FechaEmisionColumn" msprop:Generator_UserColumnName="GUIAR_FechaEmision" type="xs:string" minOccurs="0" />
+              <xs:element name="GUIAR_TotalPeso" msprop:Generator_ColumnVarNameInTable="columnGUIAR_TotalPeso" msprop:Generator_ColumnPropNameInRow="GUIAR_TotalPeso" msprop:Generator_ColumnPropNameInTable="GUIAR_TotalPesoColumn" msprop:Generator_UserColumnName="GUIAR_TotalPeso" type="xs:string" minOccurs="0" />
+            </xs:sequence>
+          </xs:complexType>
+        </xs:element>
+        <xs:element name="Cabecera" msprop:Generator_TableClassName="CabeceraDataTable" msprop:Generator_TableVarName="tableCabecera" msprop:Generator_TablePropName="Cabecera" msprop:Generator_RowDeletingName="CabeceraRowDeleting" msprop:Generator_RowChangingName="CabeceraRowChanging" msprop:Generator_RowEvHandlerName="CabeceraRowChangeEventHandler" msprop:Generator_RowDeletedName="CabeceraRowDeleted" msprop:Generator_UserTableName="Cabecera" msprop:Generator_RowChangedName="CabeceraRowChanged" msprop:Generator_RowEvArgName="CabeceraRowChangeEvent" msprop:Generator_RowClassName="CabeceraRow">
+          <xs:complexType>
+            <xs:sequence>
+              <xs:element name="Codigo" msprop:Generator_ColumnVarNameInTable="columnCodigo" msprop:Generator_ColumnPropNameInRow="Codigo" msprop:Generator_ColumnPropNameInTable="CodigoColumn" msprop:Generator_UserColumnName="Codigo" type="xs:string" minOccurs="0" />
+              <xs:element name="Titulo" msprop:Generator_ColumnVarNameInTable="columnTitulo" msprop:Generator_ColumnPropNameInRow="Titulo" msprop:Generator_ColumnPropNameInTable="TituloColumn" msprop:Generator_UserColumnName="Titulo" type="xs:string" minOccurs="0" />
+              <xs:element name="FecIni" msprop:Generator_ColumnVarNameInTable="columnFecIni" msprop:Generator_ColumnPropNameInRow="FecIni" msprop:Generator_ColumnPropNameInTable="FecIniColumn" msprop:Generator_UserColumnName="FecIni" type="xs:string" minOccurs="0" />
+              <xs:element name="FecFin" msprop:Generator_ColumnVarNameInTable="columnFecFin" msprop:Generator_ColumnPropNameInRow="FecFin" msprop:Generator_ColumnPropNameInTable="FecFinColumn" msprop:Generator_UserColumnName="FecFin" type="xs:string" minOccurs="0" />
+              <xs:element name="Empresa" msprop:Generator_ColumnVarNameInTable="columnEmpresa" msprop:Generator_ColumnPropNameInRow="Empresa" msprop:Generator_ColumnPropNameInTable="EmpresaColumn" msprop:Generator_UserColumnName="Empresa" type="xs:string" minOccurs="0" />
+              <xs:element name="Ruc" msprop:Generator_ColumnVarNameInTable="columnRuc" msprop:Generator_ColumnPropNameInRow="Ruc" msprop:Generator_ColumnPropNameInTable="RucColumn" msprop:Generator_UserColumnName="Ruc" type="xs:string" minOccurs="0" />
+              <xs:element name="PuntoVenta" msprop:Generator_ColumnVarNameInTable="columnPuntoVenta" msprop:Generator_ColumnPropNameInRow="PuntoVenta" msprop:Generator_ColumnPropNameInTable="PuntoVentaColumn" msprop:Generator_UserColumnName="PuntoVenta" type="xs:string" minOccurs="0" />
+              <xs:element name="Responsable" msprop:Generator_ColumnVarNameInTable="columnResponsable" msprop:Generator_ColumnPropNameInRow="Responsable" msprop:Generator_ColumnPropNameInTable="ResponsableColumn" msprop:Generator_UserColumnName="Responsable" type="xs:string" minOccurs="0" />
+            </xs:sequence>
+          </xs:complexType>
+        </xs:element>
+      </xs:choice>
+    </xs:complexType>
+  </xs:element>
+  <xs:annotation>
+    <xs:appinfo>
+      <msdata:Relationship name="Cabecera_Detalle" msdata:parent="Cabecera" msdata:child="Detalle" msdata:parentkey="Codigo" msdata:childkey="Codigo" msprop:Generator_UserChildTable="Detalle" msprop:Generator_ChildPropName="GetDetalleRows" msprop:Generator_UserRelationName="Cabecera_Detalle" msprop:Generator_RelationVarName="relationCabecera_Detalle" msprop:Generator_UserParentTable="Cabecera" msprop:Generator_ParentPropName="CabeceraRow" />
+    </xs:appinfo>
+  </xs:annotation>
+</xs:schema>

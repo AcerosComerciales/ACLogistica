@@ -1,0 +1,1435 @@
+﻿Imports ACBLogistica
+Imports ACBVentas
+Imports ACELogistica
+Imports ACEVentas
+Imports ACFramework
+
+Imports Microsoft.Practices.Unity
+Imports C1.Win.C1FlexGrid
+Imports ACSeguridad
+
+
+Public Class TCotCompras
+#Region " Variables "
+   Private managerGenerarCotizCompra As BGenerarCotizCompra
+   Private managerConsultaArticulos As BConsultaArticulos
+   Private managerEntidades As BEntidades
+   Private managerABAS_CotizacionesCompra As BABAS_CotizacionesCompra
+
+   Private m_listBindHelper As List(Of ACBindHelper)
+
+   Private m_eabas_cotizacionescompra As EABAS_CotizacionesCompra
+   Private m_earticulos As EArticulos
+   Private m_eentidades As EEntidades
+
+   Private bs_cotizacionescompras As BindingSource
+   Private bs_detcotizacionescompras As BindingSource
+
+   Private m_proceso_modificar As Boolean = False
+   Private m_modificando As Boolean
+   Private m_modArticulo As Boolean = False
+
+   Private frmCons As CProductos
+
+   Private m_order As Integer = 1
+
+   Enum Inicio
+      Normal
+      Busqueda
+   End Enum
+
+   Enum Seteo
+      Activar
+      Desactivar
+   End Enum
+
+#End Region
+
+#Region " Propiedades "
+
+   Public Property ABAS_Cotizacioncompra() As EABAS_CotizacionesCompra
+      Get
+         Return m_eabas_cotizacionescompra
+      End Get
+      Set(ByVal value As EABAS_CotizacionesCompra)
+         m_eabas_cotizacionescompra = value
+      End Set
+   End Property
+#End Region
+
+#Region " Constructores "
+   Public Sub New()
+      ' This call is required by the Windows Form Designer.
+      InitializeComponent()
+      Try
+         Inicializacion()
+      Catch ex As Exception
+         ACControles.ACDialogos.ACMostrarMensajeError(String.Format("Error: {0}", Me.Text), "No se puede cargar los controles iniciales", ex)
+      End Try
+   End Sub
+
+   Public Sub New(byval x_inicio as inicio)
+      ' This call is required by the Windows Form Designer.
+      InitializeComponent()
+      Try
+         Inicializacion()
+         txtBusqueda_ACAyudaClick(Nothing, Nothing)
+         Me.MinimizeBox = False
+         If x_inicio = Inicio.Busqueda Then
+            acTool.ACBtnNuevoVisible = False
+            acTool.ACBtnModificarVisible = False
+            acTool.ACBtnImprimirVisible = False
+            acTool.ACBtnAnularVisible = False
+            acbtnSeleccionar.Visible = True
+         End If
+      Catch ex As Exception
+         ACControles.ACDialogos.ACMostrarMensajeError(String.Format("Error: {0}", Me.Text), "No se puede cargar los controles iniciales", ex)
+      End Try
+   End Sub
+
+   Private sub Inicializacion() 
+      try
+         tabMantenimiento.HideTabsMode = Crownwood.DotNetMagic.Controls.HideTabsModes.HideAlways
+         tabMantenimiento.SelectedTab = tabBusqueda
+         '' Inicializar los componentes con Unity
+         managerGenerarCotizCompra = New BGenerarCotizCompra
+         managerEntidades = New BEntidades
+         managerConsultaArticulos = New BConsultaArticulos(GApp.Periodo)
+         managerABAS_CotizacionesCompra = New BABAS_CotizacionesCompra
+         '' Iniciarlizar los componentes graficos
+         formatearGrilla()
+         '' Aplicar el titulo segun el tipo de documento que se va a cargar
+         Me.Text = acpnlTitulo.ACCaption
+         '' Obtener el proceso que se va a validar
+         'GApp.DataUsuario.PROC_Codigo = Constantes.getProceso(Constantes.TipoProcesos.ModificarPedido)
+         'Dim _validate As New ACValidarUsuario(GApp.DataConexion, GApp.DataUsuario, ACValidarUsuario.Operacion.ValidarProceso)
+         'm_proceso_modificar = _validate.ACProceso
+         'acTool.ACBtnModificarVisible = m_proceso_modificar
+
+         Me.Icon = Icon.FromHandle(ACPLogistica.My.Resources.Guia_16x16.GetHicon)
+
+         AcFecha.ACDtpFecha_De.Value = DateTime.Now.AddDays(-1 * DateTime.Now.Day + 1)
+      Catch ex As Exception
+         throw ex
+      End Try
+   End Sub
+#End Region
+
+#Region " Metodos "
+   
+
+   ''' <summary>
+   ''' Activar los controles segun los permisos o el rol que tiene el cliente
+   ''' </summary>
+   ''' <param name="x_opcion"></param>
+   ''' <remarks></remarks>
+   Private Sub setRol(ByVal x_opcion As Constantes.Seteo)
+      Try
+         'actxaProvCodigo.ReadOnly = IIf(x_opcion = Constantes.Seteo.Activar, False, True)
+         'actxaProvCodigo.ACActivarAyuda = IIf(x_opcion = Constantes.Seteo.Activar, True, False)
+         'actxaProvCodigo.ACAyuda.Enabled = IIf(x_opcion = Constantes.Seteo.Activar, True, False)
+         actxaProvRazonSocial.ReadOnly = IIf(x_opcion = Constantes.Seteo.Activar, False, True)
+         actxaProvRazonSocial.ACActivarAyuda = IIf(x_opcion = Constantes.Seteo.Activar, True, False)
+         actxaProvRazonSocial.ACAyuda.Enabled = IIf(x_opcion = Constantes.Seteo.Activar, True, False)
+         actxaProvRuc.ReadOnly = IIf(x_opcion = Constantes.Seteo.Activar, False, True)
+         actxaProvRuc.ACAyuda.Enabled = IIf(x_opcion = Constantes.Seteo.Activar, True, False)
+         actxaProvRuc.ACActivarAyuda = IIf(x_opcion = Constantes.Seteo.Activar, True, False)
+      Catch ex As Exception
+         Throw ex
+      End Try
+   End Sub
+
+   ''' <summary>
+   ''' Subir item a los controles para iniciar su edicion
+   ''' </summary>
+   ''' <remarks></remarks>
+   Private Sub subirItem()
+      Try
+         If IsNothing(CType(bs_detcotizacionescompras.Current, EABAS_CotizacionesCompraDetalle).Articulo) Then
+            '' Cargar Producto
+            actxaProdCodigo.Text = CType(bs_detcotizacionescompras.Current, EABAS_CotizacionesCompraDetalle).ARTIC_Codigo
+            txtProdDescripcion.Text = CType(bs_detcotizacionescompras.Current, EABAS_CotizacionesCompraDetalle).ARTIC_Descripcion
+            actxnProdCantidad.Text = CType(bs_detcotizacionescompras.Current, EABAS_CotizacionesCompraDetalle).COTCD_Cantidad
+            m_earticulos = New EArticulos()
+            '' Asignar Metodos a controles
+         Else
+            m_earticulos = CType(bs_detcotizacionescompras.Current, EABAS_CotizacionesCompraDetalle).Articulo
+            setProducto(True)
+            actxnProdCantidad.Text = CType(bs_detcotizacionescompras.Current, EABAS_CotizacionesCompraDetalle).COTCD_Cantidad
+         End If
+      Catch ex As Exception
+         Throw ex
+      End Try
+   End Sub
+
+   ''' <summary>
+   ''' Filtrar segun el rol
+   ''' </summary>
+   ''' <returns></returns>
+   ''' <remarks></remarks>
+   Private Function getFilterRol() As Boolean
+      Try
+         If managerEntidades.Entidades.ListEntidadesTipos.Count > 0 Then
+            Dim _filter As New ACFiltrador(Of EEntidadesRoles)
+            _filter.ACFiltro = "ROLES_Id=" & EEntidades.TipoEntidad.EnBlanco
+            If _filter.ACFiltrar(managerEntidades.Entidades.ListEntidadesTipos).Count > 0 Then
+               Return True
+            Else
+               Return False
+            End If
+         Else
+            Return False
+         End If
+      Catch ex As Exception
+         Throw ex
+      End Try
+   End Function
+
+   ''' <summary>
+   ''' Agregar un registro al detalle de compra
+   ''' </summary>
+   ''' <returns></returns>
+   ''' <remarks></remarks>
+   Private Function addDetalle() As Boolean
+      Try
+         Dim _filter As New ACFiltrador(Of EABAS_CotizacionesCompraDetalle)
+         _filter.ACFiltro = String.Format("ARTIC_Codigo={0}", m_earticulos.ARTIC_Codigo)
+         _filter.ACFiltrar(m_eabas_cotizacionescompra.ListABAS_CotizacionesCompraDetalle)
+         If _filter.ACListaFiltrada.Count > 0 Then
+            If ACControles.ACDialogos.ACMostrarMensajePregunta(String.Format("Registro Duplicado: {0}", Me.Text) _
+             , "El producto ya fue ingresado, deseas actualizar la cantidad ingresada?" _
+             , ACControles.ACDialogos.LabelBotom.Si_No) = DialogResult.Yes Then
+               _filter.ACListaFiltrada(0).COTCD_Cantidad = actxnProdCantidad.Text
+               bs_detcotizacionescompras.ResetBindings(False)
+               Return True
+            End If
+         Else
+            Dim _detalle As New EABAS_CotizacionesCompraDetalle
+            _detalle.Articulo = m_earticulos
+            _detalle.ARTIC_Descripcion = m_earticulos.ARTIC_Descripcion
+            _detalle.ARTIC_Codigo = m_earticulos.ARTIC_Codigo
+            _detalle.COTCD_Cantidad = actxnProdCantidad.Text
+            _detalle.ARTIC_Codigo = m_earticulos.ARTIC_Codigo
+            If _detalle.COTCD_Cantidad > 0 Then
+               '' Actualizar contenido
+               m_eabas_cotizacionescompra.ListABAS_CotizacionesCompraDetalle.Add(_detalle)
+               bs_detcotizacionescompras.ResetBindings(False)
+               Return True
+            Else
+               ACControles.ACDialogos.ACMostrarMensajeInformacion(String.Format("Información: {0}", Me.Text), "No se puede ingresar un producto con cantidad 0 o menor a 0")
+               Return False
+            End If
+         End If
+      Catch ex As Exception
+         Throw ex
+      End Try
+   End Function
+
+   Private Sub setRolProveedor(ByVal x_opcion As Seteo)
+      Try
+         actxaProvRazonSocial.ReadOnly = IIf(x_opcion = Seteo.Activar, False, True)
+         actxaProvRazonSocial.ACActivarAyuda = IIf(x_opcion = Seteo.Activar, True, False)
+         actxaProvRazonSocial.ACAyuda.Enabled = IIf(x_opcion = Seteo.Activar, True, False)
+         actxaProvRuc.ReadOnly = IIf(x_opcion = Seteo.Activar, False, True)
+         actxaProvRuc.ACAyuda.Enabled = IIf(x_opcion = Seteo.Activar, True, False)
+         actxaProvRuc.ACActivarAyuda = IIf(x_opcion = Seteo.Activar, True, False)
+      Catch ex As Exception
+         Throw ex
+      End Try
+   End Sub
+
+#Region " Metodos Utilitarios "
+
+   ''' <summary>
+   ''' Obtener el campo por el cual se realizara la busqueda
+   ''' </summary>
+   ''' <returns></returns>
+   ''' <remarks></remarks>
+   Private Function getCampo() As Short
+      Try
+         If (rbtnCliente.Checked) Then
+            Return 0
+         ElseIf rbtnNroCotizacion.Checked Then
+            Return 1
+         Else
+            Return 0
+         End If
+      Catch ex As Exception
+         Throw ex
+      End Try
+   End Function
+
+   ''' <summary>
+   ''' validar los datos de la cotizacion de compra para inicial el procesa de grabado en la base de datos
+   ''' </summary>
+   ''' <param name="m_msg">Mensaje devuelto en caso de existir error</param>
+   ''' <returns></returns>
+   ''' <remarks></remarks>
+   Private Function validar(ByRef m_msg As String)
+      Try
+         '' Validar al Cliente
+         Dim _msg As String = ""
+         If Not ACUtilitarios.ACDatosOk(grpCabCuerpo, _msg) Then
+            m_msg &= _msg
+            Return False
+         End If
+         '' Validar Detalle
+         ValidarDetalle(m_msg)
+         '' Verificar si hay pedidos
+         If Not m_eabas_cotizacionescompra.ListABAS_CotizacionesCompraDetalle.Count > 0 Then
+            m_msg &= String.Format("- No se ha ingresado ningun articulo{0}", vbNewLine)
+         End If
+         Return Not (m_msg.Length > 0)
+      Catch ex As Exception
+         Throw ex
+      End Try
+   End Function
+
+   ''' <summary>
+   ''' Validar el detalle del documento cotizacion de compra,valida si se han ingresado las cantidades adecuadamente
+   ''' </summary>
+   ''' <param name="m_msg">Mensaje devuelto con la descripción del error en caso de existir</param>
+   ''' <returns></returns>
+   ''' <remarks></remarks>
+   Private Function ValidarDetalle(ByRef m_msg As String) As Boolean
+      Try
+         bs_detcotizacionescompras.ResetBindings(False)
+         '' Valida que la cantidad y el precio es superior a 0
+         For Each Item As EABAS_CotizacionesCompraDetalle In m_eabas_cotizacionescompra.ListABAS_CotizacionesCompraDetalle
+            If Not Item.COTCD_Cantidad > 0 Then
+               m_msg &= String.Format("- El Producto {0} tiene como cantidad {1}, no es aceptable.{2}", Item.Articulo.ARTIC_Descripcion, Item.COTCD_Cantidad, vbNewLine)
+            End If
+            If Not IsNothing(Item.Articulo) Then
+               '' Validar que no se hayan ingresado cantidades decimales para las unidades que no lo permiten
+               Dim _filter As New ACFiltrador(Of ETipos)
+
+               m_earticulos = Item.Articulo
+               _filter.ACFiltro = String.Format("TIPOS_Codigo={0}", m_earticulos.TIPOS_CodUnidadMedida)
+               If Not _filter.ACFiltrar(Colecciones.TiposUniMedDecimal).Count > 0 Then
+                  If (Item.COTCD_Cantidad - Math.Truncate(Item.COTCD_Cantidad)) > 0 Then
+                     m_msg &= String.Format("- El Producto: {0}, no permite que se ingresen cantidades decimales{1}", Item.ARTIC_Descripcion, vbNewLine)
+                  End If
+               End If
+            End If
+         Next
+
+         Return Not (m_msg.Length > 0)
+      Catch ex As Exception
+         Throw ex
+      End Try
+   End Function
+
+   ''' <summary>
+   ''' Dar formato a la grillas para la carga de datos
+   ''' </summary>
+   ''' <remarks></remarks>
+   Private Sub formatearGrilla()
+      Dim index As Integer = 1
+      Try
+         ACFrameworkC1.ACUtilitarios.ACFormatearGrilla(c1grdBusqueda, 1, 1, 13, 1, 0)
+         ACFrameworkC1.ACUtilitarios.ACAgregarColumna(c1grdBusqueda, index, "Codigo", "ENTID_CodigoProveedor", "ENTID_CodigoProveedor", 150, False, False, "System.String") : index += 1
+         ACFrameworkC1.ACUtilitarios.ACAgregarColumna(c1grdBusqueda, index, "Fecha", "COTCO_FechaDocumento", "COTCO_FechaDocumento", 150, True, False, "System.DateTime", Parametros.GetParametro(EParametros.TipoParametros.pg_FormatoFecha)) : index += 1
+         ACFrameworkC1.ACUtilitarios.ACAgregarColumna(c1grdBusqueda, index, "Codigo", "COTCO_Codigo", "COTCO_Codigo", 150, True, False, "System.String") : index += 1
+         ACFrameworkC1.ACUtilitarios.ACAgregarColumna(c1grdBusqueda, index, "Almacen", "ALMAC_Descripcion", "ALMAC_Descripcion", 150, True, False, "System.String") : index += 1
+         ACFrameworkC1.ACUtilitarios.ACAgregarColumna(c1grdBusqueda, index, "Codigo", "ENTID_CodigoProveedor", "ENTID_CodigoProveedor", 150, True, False, "System.String") : index += 1
+         ACFrameworkC1.ACUtilitarios.ACAgregarColumna(c1grdBusqueda, index, "Proveedor", "ENTID_Proveedor", "ENTID_Proveedor", 150, True, False, "System.String") : index += 1
+         ACFrameworkC1.ACUtilitarios.ACAgregarColumna(c1grdBusqueda, index, "Dirección", "COTCO_DireccionProveedor", "COTCO_DireccionProveedor", 150, True, False, "System.String") : index += 1
+         ACFrameworkC1.ACUtilitarios.ACAgregarColumna(c1grdBusqueda, index, "Atención", "COTCO_AtencionProveedor", "COTCO_AtencionProveedor", 150, True, False, "System.String") : index += 1
+         ACFrameworkC1.ACUtilitarios.ACAgregarColumna(c1grdBusqueda, index, "Telefono", "COTCO_TelefonoProveedor", "COTCO_TelefonoProveedor", 150, True, False, "System.Decimal", Parametros.GetParametro(EParametros.TipoParametros.pg_FMondo2d)) : index += 1
+         ACFrameworkC1.ACUtilitarios.ACAgregarColumna(c1grdBusqueda, index, "E-Mail", "COTCO_CorreoProveedor", "COTCO_CorreoProveedor", 150, True, False, "System.String") : index += 1
+         ACFrameworkC1.ACUtilitarios.ACAgregarColumna(c1grdBusqueda, index, "Estado", "COTCO_Estado_Text", "COTCO_Estado_Text", 150, True, False, "System.String") : index += 1
+         ACFrameworkC1.ACUtilitarios.ACAgregarColumna(c1grdBusqueda, index, "COTCO_Estado", "COTCO_Estado", "COTCO_Estado", 150, False, False, "System.String") : index += 1
+
+         c1grdBusqueda.AllowEditing = False
+         c1grdBusqueda.AllowSorting = AllowSortingEnum.SingleColumn
+         c1grdBusqueda.Styles.Alternate.BackColor = Color.LightGray
+         c1grdBusqueda.Styles.Fixed.TextAlign = TextAlignEnum.CenterCenter
+         c1grdBusqueda.Styles.Highlight.BackColor = Color.Gray
+         c1grdBusqueda.SelectionMode = SelectionModeEnum.Row
+         c1grdBusqueda.Tree.Column = 2
+
+         Dim t As C1.Win.C1FlexGrid.CellStyle = c1grdBusqueda.Styles.Add("Facturado")
+         t.BackColor = Color.LightGreen
+         t.ForeColor = Color.DarkBlue
+         t.Font = New Font(c1grdBusqueda.Font, FontStyle.Regular)
+
+         Dim u As C1.Win.C1FlexGrid.CellStyle = c1grdBusqueda.Styles.Add("Facturar")
+         u.BackColor = Color.Green
+         u.ForeColor = Color.White
+         u.Font = New Font(c1grdBusqueda.Font, FontStyle.Regular)
+
+         Dim d As C1.Win.C1FlexGrid.CellStyle = c1grdBusqueda.Styles.Add("Anulado")
+         d.BackColor = Color.Red
+         d.ForeColor = Color.White
+         d.Font = New Font(c1grdBusqueda.Font, FontStyle.Bold)
+         c1grdBusqueda.DrawMode = C1.Win.C1FlexGrid.DrawModeEnum.OwnerDraw
+
+         index = 1
+         ACFrameworkC1.ACUtilitarios.ACFormatearGrilla(c1grdDetalle, 1, 1, 4, 1, 0)
+         ACFrameworkC1.ACUtilitarios.ACAgregarColumna(c1grdDetalle, index, "Codigo", "ARTIC_Codigo", "ARTIC_Codigo", 110, True, False, "System.String") : index += 1
+         ACFrameworkC1.ACUtilitarios.ACAgregarColumna(c1grdDetalle, index, "Descripción", "ARTIC_Descripcion", "ARTIC_Descripcion", 530, True, False, "System.String") : index += 1
+         ACFrameworkC1.ACUtilitarios.ACAgregarColumna(c1grdDetalle, index, "Cantidad", "COTCD_Cantidad", "COTCD_Cantidad", 110, True, True, "System.Decimal", Parametros.GetParametro(EParametros.TipoParametros.pg_FMondo2d)) : index += 1
+         c1grdDetalle.AllowEditing = False
+         c1grdDetalle.AutoResize = False
+         c1grdDetalle.Cols(0).Width = 18
+         c1grdDetalle.Styles.Alternate.BackColor = Color.LightGray
+         c1grdDetalle.Styles.Fixed.TextAlign = TextAlignEnum.CenterCenter
+         c1grdDetalle.Styles.Highlight.BackColor = Color.Gray
+         c1grdDetalle.SelectionMode = SelectionModeEnum.Row
+         c1grdDetalle.AllowResizing = AllowResizingEnum.None
+      Catch ex As Exception
+         ACControles.ACDialogos.ACMostrarMensajeError(String.Format("Error: {0}", Text), "No se puede dar formato a la grilla", ex)
+      End Try
+   End Sub
+
+   ''' <summary>
+   ''' Dar la instancia de los objetos segun la opcion, activando y/o desactivando las interfaces
+   ''' </summary>
+   ''' <param name="_opcion"></param>
+   ''' <remarks></remarks>
+   Private Sub setInstancia(ByVal _opcion As ACUtilitarios.ACSetInstancia)
+      Select Case _opcion
+         Case ACUtilitarios.ACSetInstancia.Nuevo
+            ACUtilitarios.ACLimpiaVar(grpCabCuerpo)
+            ACUtilitarios.ACLimpiaVar(pnlItem)
+            setInstanciaModificar(False)
+            actxaProvRuc.Focus()
+            m_modificando = False
+            actsbtnPrevisualizar.Visible = True
+            pnlItem.Enabled = False
+            btnClean.Enabled = True
+            btnNuevoProveedor.Enabled = True
+            actsbtnPrevisualizar.Visible = False
+            acTool.ACBtnAnularVisible = False
+            acTool.ACBtnBuscarVisible = True
+            'm_modificar = False
+            AddHandler c1grdDetalle.KeyDown, AddressOf c1grdDetalle_KeyDown
+         Case ACUtilitarios.ACSetInstancia.Modificado
+            setInstanciaModificar(True)
+            pnlItem.Enabled = True
+            c1grdDetalle.Focus()
+            m_modificando = True
+            actsbtnPrevisualizar.Visible = True
+            btnClean.Enabled = False
+            btnNuevoProveedor.Enabled = False
+            actsbtnPrevisualizar.Visible = False
+            acTool.ACBtnAnularVisible = True
+            acTool.ACBtnBuscarVisible = True
+            'm_modificar = True
+            AddHandler c1grdDetalle.KeyDown, AddressOf c1grdDetalle_KeyDown
+         Case ACUtilitarios.ACSetInstancia.Guardar
+            txtBusqueda.Focus()
+            m_modificando = False
+            actsbtnPrevisualizar.Visible = True
+            btnClean.Enabled = False
+            btnNuevoProveedor.Enabled = False
+            actsbtnPrevisualizar.Visible = True
+            acTool.ACBtnAnularVisible = True
+            acTool.ACBtnBuscarVisible = False
+            'm_modificar = False
+            RemoveHandler c1grdDetalle.KeyDown, AddressOf c1grdDetalle_KeyDown
+         Case ACUtilitarios.ACSetInstancia.Deshacer
+            actxaProvRuc.Focus()
+            m_modificando = False
+            actsbtnPrevisualizar.Visible = True
+            btnNuevoProveedor.Enabled = False
+            btnClean.Enabled = False
+            actsbtnPrevisualizar.Visible = True
+            acTool.ACBtnAnularVisible = True
+            acTool.ACBtnBuscarVisible = False
+            'm_modificar = False
+            RemoveHandler c1grdDetalle.KeyDown, AddressOf c1grdDetalle_KeyDown
+         Case ACUtilitarios.ACSetInstancia.Previsualizar
+            ACUtilitarios.ACSetControl(grpCabCuerpo, True, ACUtilitarios.TipoPropiedad.ACReadOnly)
+            pnlItem.Enabled = False
+            actxaProvRazonSocial.ACAyuda.Enabled = False
+            actxaProvRazonSocial.ACActivarAyuda = False
+            actxaProvRuc.ACAyuda.Enabled = False
+            actxaProvRuc.ACActivarAyuda = False
+            'actxaProvCodigo.ACAyuda.Enabled = False
+            'actxaProvCodigo.ACActivarAyuda = False
+            pnlCabHeader.Enabled = False
+            RemoveHandler c1grdDetalle.KeyDown, AddressOf c1grdDetalle_KeyDown
+            acTool.setInstancia(ACControles.ACToolBarMantHorizontalNew.TipoInstancia.Nuevo)
+            acTool.ACBtnGrabarVisible = False
+            'acTool.ACBtnRehusarVisible = True
+            actsbtnPrevisualizar.Visible = False
+            btnClean.Enabled = False
+            btnNuevoProveedor.Enabled = False
+            acTool.ACBtnAnularVisible = False
+            acTool.ACBtnBuscarVisible = False
+            acTool.ACBtnModificarVisible = True
+      End Select
+   End Sub
+
+   ''' <summary>
+   ''' Dar instancia de activacion para la modificación de los registros
+   ''' </summary>
+   ''' <param name="x_opcion"></param>
+   ''' <remarks></remarks>
+   Private Sub setInstanciaModificar(ByVal x_opcion As Boolean)
+      Try
+         ACUtilitarios.ACSetControl(grpCabCuerpo, x_opcion, ACUtilitarios.TipoPropiedad.ACReadOnly)
+         ACUtilitarios.ACSetControl(pnlItem, x_opcion, ACUtilitarios.TipoPropiedad.ACReadOnly)
+         'actxaProvCodigo.ACAyuda.Enabled = Not x_opcion
+         'actxaProvCodigo.ACActivarAyuda = Not x_opcion
+         actxaProvRazonSocial.ACAyuda.Enabled = Not x_opcion
+         actxaProvRazonSocial.ACActivarAyuda = Not x_opcion
+         actxaProvRuc.ACAyuda.Enabled = Not x_opcion
+         actxaProvRuc.ACActivarAyuda = Not x_opcion
+         actxaProdCodigo.ACActivarAyuda = Not x_opcion
+         actxaProdCodigo.ACAyuda.Enabled = Not x_opcion
+         pnlCabHeader.Enabled = Not x_opcion
+      Catch ex As Exception
+         Throw ex
+      End Try
+   End Sub
+
+#End Region
+
+#Region " Cargar Datos"
+
+   ''' <summary>
+   ''' cargar los datos del articulo a los controles visuales
+   ''' </summary>
+   ''' <param name="x_opcion"></param>
+   ''' <remarks></remarks>
+   Private Sub setProducto(ByVal x_opcion As Boolean)
+      Try
+         If x_opcion Then
+            actxaProdCodigo.Text = m_earticulos.ARTIC_Codigo
+            txtProdDescripcion.Text = m_earticulos.ARTIC_Descripcion
+            txtProdDescripcion.Focus()
+         Else
+            actxaProdCodigo.Clear()
+            txtProdDescripcion.Clear()
+            actxnProdCantidad.Text = "0.00"
+         End If
+      Catch ex As Exception
+         Throw ex
+      End Try
+   End Sub
+
+   ''' <summary>
+   ''' Cargar los datos en el control Visual C1FlexGrid
+   ''' </summary>
+   Private Sub cargarDatos()
+      Try
+         bs_cotizacionescompras = New BindingSource()
+         bs_cotizacionescompras.DataSource = managerABAS_CotizacionesCompra.ListABAS_CotizacionesCompra
+         c1grdBusqueda.DataSource = bs_cotizacionescompras
+         bnavBusqueda.BindingSource = bs_cotizacionescompras
+         AddHandler bs_cotizacionescompras.CurrentChanged, AddressOf bs_cotizaciones_CurrentChanged
+         bs_cotizaciones_CurrentChanged(Nothing, Nothing)
+      Catch ex As Exception
+         Throw ex
+      End Try
+   End Sub
+
+   'Private Sub cargarProveedor(ByVal x_proveed_codigo As String)
+   '   Try
+   '      If managerGenerarCotizCompra.getProveedor(x_proveed_codigo) Then
+   '         m_eabas_cotizacionescompra.ENTID_CodigoProveedor = managerGenerarCotizCompra.Proveedor.ENTID_Codigo
+   '         'actxaNomVendedor.Text = managerGenerarCotizacion.Vendedor.ENTID_Nombres
+   '         'actxaCodVendedor.Text = managerGenerarCotizacion.Vendedor.ENTID_Codigo
+   '      Else
+   '         managerGenerarCotizCompra.getProveedor(Parametros.GetParametro(EParametros.TipoParametros.pg_VendedorDefa))
+   '         m_eabas_cotizacionescompra.ENTID_CodigoProveedor = managerGenerarCotizCompra.Proveedor.ENTID_Codigo
+   '         'actxaNomVendedor.Text = managerGenerarCotizCompra.Vendedor.ENTID_Nombres
+   '         'actxaCodVendedor.Text = managerGenerarCotizCompra.Vendedor.ENTID_Codigo
+   '      End If
+
+   '   Catch ex As Exception
+   '      Throw ex
+   '   End Try
+   'End Sub
+
+   ''' <summary>
+   ''' Realiza el enlace de los controles visuales con la clase esquema
+   ''' </summary>
+   Private Sub AsignarBinding()
+      Try
+         m_listBindHelper = New List(Of ACBindHelper)()
+         m_listBindHelper.Add(ACBindHelper.ACBind(txtCodigo, "Text", m_eabas_cotizacionescompra, "COTCO_Codigo"))
+         If m_eabas_cotizacionescompra.COTCO_FechaDocumento.Year < 1700 Then m_eabas_cotizacionescompra.COTCO_FechaDocumento = DateTime.Now
+         m_listBindHelper.Add(ACBindHelper.ACBind(dtpFecEmision, "Value", m_eabas_cotizacionescompra, "COTCO_FechaDocumento"))
+         m_listBindHelper.Add(ACBindHelper.ACBind(txtDireccion, "Text", m_eabas_cotizacionescompra, "COTCO_DireccionProveedor"))
+         m_listBindHelper.Add(ACBindHelper.ACBind(txtTelefono, "Text", m_eabas_cotizacionescompra, "COTCO_TelefonoProveedor"))
+         m_listBindHelper.Add(ACBindHelper.ACBind(txtEMail, "Text", m_eabas_cotizacionescompra, "COTCO_CorreoProveedor"))
+         m_listBindHelper.Add(ACBindHelper.ACBind(txtAtencion, "Text", m_eabas_cotizacionescompra, "COTCO_AtencionProveedor"))
+         ''PEDID_SubTotal
+      Catch ex As Exception
+         Throw ex
+      End Try
+   End Sub
+
+#End Region
+
+#Region " Para el Proveedor "
+
+   ''' <summary>
+   ''' Cargar la ayuda de las entidades proveedor
+   ''' </summary>
+   ''' <param name="x_cadenas">Cadena de busqueda</param>
+   ''' <param name="x_campo">campo al que va a ser referencia la busqueda</param>
+   ''' <param name="x_opcion">opcion de tipo de entidad</param>
+   ''' <remarks></remarks>
+   Private Sub AyudaEntidad(ByVal x_cadenas As String, ByVal x_campo As String, ByVal x_opcion As EEntidades.TipoEntidad)
+      Try
+         Me.KeyPreview = False
+         Dim _where As New Hashtable
+         _where.Add(x_campo, New ACWhere(x_cadenas, ACWhere.TipoWhere._Like))
+         If managerEntidades.Ayuda(_where, x_opcion) Then
+            Dim Ayuda As New ACControlesC1.ACAyudaFlex("Buscar Entidad", managerEntidades.DTEntidades, False)
+            If Ayuda.ShowDialog() = Windows.Forms.DialogResult.OK Then
+               Select Case x_opcion
+                  Case EEntidades.TipoEntidad.ProveedoresLogistica
+                     '' Cargar datos del cliente
+                     m_eabas_cotizacionescompra.ENTID_CodigoProveedor = Ayuda.Respuesta.Rows(0)("Codigo")
+                     If managerEntidades.Cargar(m_eabas_cotizacionescompra.ENTID_CodigoProveedor, EEntidades.TipoInicializacion.Proveedor) Then
+                        'actxaProvCodigo.Text = managerEntidades.Entidades.ENTID_Codigo
+                        actxaProvRazonSocial.Text = managerEntidades.Entidades.ENTID_RazonSocial
+                        actxaProvRuc.Text = managerEntidades.Entidades.ENTID_NroDocumento
+                        txtDireccion.Text = Ayuda.Respuesta.Rows(0)("Dirección").ToString()
+                        txtTelefono.Text = managerEntidades.Entidades.ENTID_Telefono1
+                        txtEMail.Text = managerEntidades.Entidades.ENTID_EMail
+                        '' Cargar datos adicionales del proveedor
+                        m_eentidades = managerEntidades.Entidades
+                        txtAtencion.Text = m_eentidades.Proveedor.PROVE_Atencion
+                        setRolProveedor(IIf(getFilterRol(), Constantes.Seteo.Activar, Constantes.Seteo.Desactivar))
+                        txtAtencion.Focus()
+                     End If
+                     '' Cargar datos adicionales del proveedor
+                     pnlItem.Enabled = True
+                     actxaProdCodigo.Focus()
+                     Me.KeyPreview = True
+                  Case EEntidades.TipoEntidad.Vendedores
+                     Dim x_entid_codigo As String = Ayuda.Respuesta.Rows(0)("Codigo")
+               End Select
+            End If
+         Else
+            ACControles.ACDialogos.ACMostrarMensajeInformacion(String.Format("Información: {0}", Me.Text), "No se puede cargar la ayuda, posiblemente no hay datos que mostrar por que no hay coincidencias en la busqueda")
+         End If
+      Catch ex As Exception
+         Throw ex
+      End Try
+   End Sub
+#End Region
+
+#Region " Procesos "
+   ''' <summary>
+   ''' Realizar la busqueda de cotizaciones de compra
+   ''' </summary>
+   ''' <param name="x_cadena">Cadena de busqueda de cotizaciones</param>
+   ''' <returns></returns>
+   ''' <remarks></remarks>
+   Private Function busqueda(ByVal x_cadena As String) As Boolean
+      Try
+         'If txtBusqueda.ACEstadoAutoAyuda Then
+         chkAgrupar.Checked = False
+         If managerABAS_CotizacionesCompra.Busqueda(GApp.Zona, GApp.Sucursal, x_cadena, getCampo(), chkTodos.Checked, AcFecha.ACDtpFecha_De.Value.Date, AcFecha.ACDtpFecha_A.Value.Date) Then
+            acTool.ACBtnEliminarEnabled = True
+            acTool.ACBtnModificarEnabled = True
+         Else
+            acTool.ACBtnEliminarEnabled = False
+            acTool.ACBtnModificarEnabled = False
+         End If
+         cargarDatos()
+         'End If
+         Return acTool.ACBtnEliminarEnabled
+      Catch ex As Exception
+         ACControles.ACDialogos.ACMostrarMensajeError(String.Format("Error: {0}", Convert.ToString(Text)), "No se puede cargar la ayuda de los conductores", ex)
+      End Try
+      Return False
+   End Function
+
+   ''' <summary>
+   ''' Grabar la cotizacion de compra en la base de datos
+   ''' </summary>
+   ''' <param name="m_msg">Mensaje devuelto en caso de ocurrir alguna incidencia</param>
+   ''' <returns></returns>
+   ''' <remarks></remarks>
+   Private Function grabarCotizCompra(ByRef m_msg As String) As Boolean
+      Try
+         If validar(m_msg) Then
+            If ACControles.ACDialogos.ACMostrarMensajePregunta(String.Format("Grabar Cotización de Compra: {0}", Me.Text) _
+             , "Desea grabar la Cotización de Compra?" _
+             , ACControles.ACDialogos.LabelBotom.Si_No) = DialogResult.Yes Then
+               If m_eabas_cotizacionescompra.Nuevo Then
+                  '' Obtener datos
+                  m_eabas_cotizacionescompra.ZONAS_Codigo = GApp.Zona
+                  m_eabas_cotizacionescompra.SUCUR_Id = GApp.Sucursal
+                  m_eabas_cotizacionescompra.ALMAC_Id = GApp.Almacen
+                  '' Obtener el correlativo y asignarlo
+                  Dim x_corre As Integer = 0
+                  Dim x_tipo As String = EABAS_CotizacionesCompra.TipoPedido.CT.ToString()
+                  m_eabas_cotizacionescompra.COTCO_Codigo = managerABAS_CotizacionesCompra.getCorrelativo(x_tipo, x_corre, GApp.Almacen)
+                  m_eabas_cotizacionescompra.COTCO_Numero = x_corre
+                  '' Definir el Estado
+                  m_eabas_cotizacionescompra.COTCO_Estado = EABAS_CotizacionesCompra.getEstado(EABAS_CotizacionesCompra.Estado.Ingresado)
+                  '' Asignar la clase pedido a la capa de negocio 
+               End If
+               managerGenerarCotizCompra.EABAST_CotizacionesCompra = m_eabas_cotizacionescompra
+               '' Grabar el pedido
+               If managerGenerarCotizCompra.GrabaCotizCompra(GApp.Usuario, m_msg) Then
+                  Return True
+               Else
+                  ACControles.ACDialogos.ACMostrarMensajeInformacion(String.Format("Información: {0}", Me.Text), "No se puede grabar, revise los detalles:", m_msg)
+               End If
+            End If
+         End If
+         Return False
+      Catch ex As Exception
+         Throw ex
+      End Try
+   End Function
+
+   ''' <summary>
+   ''' Crear nueva cotizacion de compra
+   ''' </summary>
+   ''' <remarks></remarks>
+   Private Sub nuevaCotizacion()
+      Try
+         '' Inicializar clase Pedido
+         m_eabas_cotizacionescompra = New EABAS_CotizacionesCompra
+         m_eabas_cotizacionescompra.Instanciar(ACEInstancia.Nuevo)
+         ' '' Instanciar clase
+         AsignarBinding()
+         setInstancia(ACUtilitarios.ACSetInstancia.Nuevo)
+         '' Para Cargar detalle del producto
+         bs_detcotizacionescompras = New BindingSource
+         m_eabas_cotizacionescompra.ListABAS_CotizacionesCompraDetalle = New List(Of EABAS_CotizacionesCompraDetalle)
+         bs_detcotizacionescompras.DataSource = m_eabas_cotizacionescompra.ListABAS_CotizacionesCompraDetalle
+         c1grdDetalle.DataSource = bs_detcotizacionescompras
+         bnavProductos.BindingSource = bs_detcotizacionescompras
+
+         tabMantenimiento.SelectedTab = tabDatos
+         'actxaProvCodigo.Focus()
+      Catch ex As Exception
+         Throw ex
+      End Try
+   End Sub
+
+   ''' <summary>
+   ''' Ordenar la grilla de cotizaciones de compra
+   ''' </summary>
+   ''' <param name="x_columna"></param>
+   ''' <remarks></remarks>
+   Private Sub OrdenarPedidos(ByVal x_columna As String)
+      Dim _ordenador As New ACOrdenador(Of EABAS_CotizacionesCompra)
+      Try
+         If m_order = 2 Then x_columna += " DESC"
+         _ordenador.ACOrdenamiento = x_columna
+         CType(bs_cotizacionescompras.DataSource, List(Of EABAS_CotizacionesCompra)).Sort(_ordenador)
+         c1grdBusqueda.Refresh()
+         m_order = IIf(m_order = 1, 2, 1)
+      Catch ex As Exception
+         Throw ex
+      End Try
+   End Sub
+
+   Private Sub NuevoProveedor(ByVal x_entid_nrodocumento As String)
+      Try
+         Dim frmEntidad As New MEntidad(MEntidad.Inicio.NuevaEntidad, ACEVentas.EEntidades.TipoEntidad.Clientes)
+         frmEntidad.StartPosition = FormStartPosition.CenterScreen
+         If x_entid_nrodocumento.Length > 0 Then
+            frmEntidad.EEntidad.ENTID_NroDocumento = x_entid_nrodocumento
+            frmEntidad.lblNombres.Focus()
+         End If
+         If frmEntidad.ShowDialog() = Windows.Forms.DialogResult.OK Then
+            m_eentidades = frmEntidad.EEntidad
+            m_eabas_cotizacionescompra.ENTID_CodigoProveedor = m_eentidades.ENTID_Codigo
+
+            Dim l_Tipos As New List(Of ETipos)(Colecciones.GetTipos(m_eentidades.Cliente.TIPOS_CodTipoPercepcion))
+            Dim pPercepcion As Double
+            If l_Tipos.Count > 0 Then
+               pPercepcion = l_Tipos(0).TIPOS_Numero
+            End If
+            m_eentidades.Cliente.Percepcion = pPercepcion
+            managerEntidades.Entidades = m_eentidades
+            managerEntidades.Cliente = m_eentidades.Cliente
+            actxaProvRazonSocial.Text = managerEntidades.Entidades.ENTID_RazonSocial
+            actxaProvRuc.Text = managerEntidades.Entidades.ENTID_NroDocumento
+            txtDireccion.Text = managerEntidades.Entidades.ENTID_Direccion
+            'cargarProveedor(managerEntidades.Cliente.ENTID_CodigoVendedor)
+            'cargarProveedor(IIf(IsNothing(managerEntidades.Cliente), Parametros.GetParametro(EParametros.TipoParametros.pg_VendedorDefa), managerEntidades.Cliente.ENTID_CodigoVendedor))
+            setRolProveedor(IIf(getFilterRol(), Seteo.Activar, Seteo.Desactivar))
+            pnlItem.Enabled = True
+            'calcular()
+         End If
+      Catch ex As Exception
+         Throw ex
+      End Try
+   End Sub
+
+#End Region
+
+#End Region
+
+#Region " Metodos de Controles"
+
+   Private Sub acbtnSeleccionar_Click(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles acbtnSeleccionar.Click
+      Try
+         If Not IsNothing(bs_cotizacionescompras) Then
+            If Not IsNothing(bs_cotizacionescompras.Current) Then
+               m_eabas_cotizacionescompra = CType(bs_cotizacionescompras.Current, EABAS_CotizacionesCompra)
+               Me.DialogResult = Windows.Forms.DialogResult.OK
+               Me.Close()
+            Else
+               ACControles.ACDialogos.ACMostrarMensajeInformacion(String.Format("Información: {0}", Me.Text), "No se puede continuar por que no ha seleccionado ninguna cotización de compra")
+            End If
+         Else
+            ACControles.ACDialogos.ACMostrarMensajeInformacion(String.Format("Información: {0}", Me.Text), "No se puede continuar por que no ha seleccionado ninguna cotización de compra")
+         End If
+      Catch ex As Exception
+         ACControles.ACDialogos.ACMostrarMensajeError(String.Format("Error: {0}", Me.Text), "Ocurrio un error en el proceso seleccionar Cotizacion", ex)
+      End Try
+   End Sub
+
+   Private Sub txtProdDescripcion_SizeChanged(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles txtProdDescripcion.SizeChanged
+      Try
+         c1grdDetalle.Cols(2).Width = txtProdDescripcion.Size.Width
+      Catch ex As Exception
+
+      End Try
+   End Sub
+
+   Private Sub btnNuevoProveedor_Click(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles btnNuevoProveedor.Click
+      Try
+         Dim frmEntidad As New MEntidad(MEntidad.Inicio.NuevaEntidad, EEntidades.TipoEntidad.Proveedores)
+         frmEntidad.StartPosition = FormStartPosition.CenterScreen
+         If frmEntidad.ShowDialog() = Windows.Forms.DialogResult.OK Then
+            m_eentidades = frmEntidad.EEntidad
+            m_eabas_cotizacionescompra.ENTID_CodigoProveedor = m_eentidades.ENTID_Codigo
+            'actxaProvCodigo.Text = managerEntidades.Entidades.ENTID_Codigo
+            actxaProvRazonSocial.Text = managerEntidades.Entidades.ENTID_RazonSocial
+            actxaProvRuc.Text = managerEntidades.Entidades.ENTID_NroDocumento
+            txtDireccion.Text = managerEntidades.Entidades.ENTID_Direccion
+            setRol(IIf(getFilterRol(), Constantes.Seteo.Activar, Constantes.Seteo.Desactivar))
+            pnlItem.Enabled = True
+         End If
+      Catch ex As Exception
+         ACControles.ACDialogos.ACMostrarMensajeError(String.Format("Error: {0}", Me.Text), "Ocurrio un error en el proceso Nuevo Cliente", ex)
+      End Try
+   End Sub
+
+   Private Sub btnClean_Click(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles btnClean.Click
+      Try
+         m_eentidades = New EEntidades
+         'actxaProvCodigo.Clear()
+         actxaProvRazonSocial.Clear()
+         actxaProvRuc.Clear()
+         txtDireccion.Clear()
+         setRol(Constantes.Seteo.Activar)
+         pnlItem.Enabled = False
+      Catch ex As Exception
+         ACControles.ACDialogos.ACMostrarMensajeError(String.Format("Error: {0}", Me.Text), "Ocurrio un error en el proceso Limpiar Entidad", ex)
+      End Try
+   End Sub
+
+   Private Sub bs_cotizaciones_CurrentChanged(ByVal sender As System.Object, ByVal e As System.EventArgs)
+      Try
+         If Not IsNothing(bs_cotizacionescompras.Current) Then
+            Select Case CType(bs_cotizacionescompras.Current, EABAS_CotizacionesCompra).COTCO_Estado
+               Case EABAS_CotizacionesCompra.getEstado(EVENT_Pedidos.Estado.Confirmado), _
+                    EABAS_CotizacionesCompra.getEstado(EVENT_Pedidos.Estado.Anulado)
+                  acTool.ACBtnModificarEnabled = False
+                  acTool.ACBtnAnularEnabled = False
+               Case Else
+                  acTool.ACBtnModificarEnabled = True
+                  acTool.ACBtnAnularEnabled = True
+            End Select
+            acTool.ACBtnModificarVisible = False
+         End If
+      Catch ex As Exception
+         ACControles.ACDialogos.ACMostrarMensajeError(String.Format("Error: {0}", Me.Text), "Ocurrio un error en el proceso Cargar Propiedades del Cotización/Pedido", ex)
+      End Try
+   End Sub
+
+   Private Sub chkAgrupar_CheckedChanged(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles chkAgrupar.CheckedChanged
+      Try
+         If chkAgrupar.Checked Then
+            OrdenarPedidos("ENTID_Proveedor")
+            c1grdBusqueda.Subtotal(AggregateEnum.Count, 0, 1, 1, "Agrupado por: {0}")
+         Else
+            c1grdBusqueda.Subtotal(AggregateEnum.Clear)
+         End If
+         c1grdBusqueda.AutoSizeCols()
+      Catch ex As Exception
+         ACControles.ACDialogos.ACMostrarMensajeError(String.Format("Error: {0}", Convert.ToString(Text)), "No se agrupar resultados", ex)
+      End Try
+   End Sub
+
+#Region " ToolBar "
+
+   Private Sub actsbtnPrevisualizar_Click(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles actsbtnPrevisualizar.Click
+      Try
+         If Not IsNothing(bs_cotizacionescompras) Then
+            If Not IsNothing(bs_cotizacionescompras.Current) Then
+               '' Codigo
+               Dim x_codigo As String = CType(bs_cotizacionescompras.Current, EABAS_CotizacionesCompra).COTCO_Codigo
+               '' Cargar Cotizacion
+               If managerABAS_CotizacionesCompra.Cargar(x_codigo, True) Then
+                  setInstancia(ACUtilitarios.ACSetInstancia.Nuevo)
+                  m_eabas_cotizacionescompra = managerABAS_CotizacionesCompra.ABAS_CotizacionesCompra
+                  AsignarBinding()
+                  '' Cargar listado de Productos
+                  bs_detcotizacionescompras = New BindingSource
+                  bs_detcotizacionescompras.DataSource = m_eabas_cotizacionescompra.ListABAS_CotizacionesCompraDetalle
+                  c1grdDetalle.DataSource = bs_detcotizacionescompras
+                  bnavProductos.BindingSource = bs_detcotizacionescompras
+                  tabMantenimiento.SelectedTab = tabDatos
+                  '' Cargar datos del Cliente
+                  If managerEntidades.Cargar(m_eabas_cotizacionescompra.ENTID_CodigoProveedor) Then
+                     'actxaProvCodigo.Text = m_eabas_cotizacionescompra.ENTID_CodigoProveedor
+                     actxaProvRuc.Text = m_eabas_cotizacionescompra.ENTID_NroDocumento
+                     actxaProvRazonSocial.Text = managerEntidades.Entidades.ENTID_RazonSocial
+                  End If
+
+                  '' Setear Valores
+                  setInstancia(ACUtilitarios.ACSetInstancia.Previsualizar)
+                  If Not m_eabas_cotizacionescompra.COTCO_Estado = EABAS_CotizacionesCompra.getEstado(EABAS_CotizacionesCompra.Estado.Ingresado) Then
+                     acTool.ACBtnModificarEnabled = False
+                  End If
+               End If
+            Else
+               ACControles.ACDialogos.ACMostrarMensajeInformacion(String.Format("Información: {0}", Me.Text), "No se puede Cargar documento por que no se ha cargado ninguno")
+            End If
+         Else
+            ACControles.ACDialogos.ACMostrarMensajeInformacion(String.Format("Información: {0}", Me.Text), "No se puede documento por que no se ha cargado ninguno ")
+         End If
+      Catch ex As Exception
+         ACControles.ACDialogos.ACMostrarMensajeError(String.Format("Error: {0}", Me.Text), "Ocurrio un error en el proceso Previsualizar", ex)
+      End Try
+   End Sub
+
+   Private Sub acTool_ACBtnModificar_Click(ByVal sender As Object, ByVal e As System.EventArgs) Handles acTool.ACBtnModificar_Click
+      Try
+         If ACControles.ACDialogos.ACMostrarMensajePregunta(String.Format("Modificars Registro: {0}", Me.Text) _
+             , "¿Desea modificar la cotización?" _
+             , ACControles.ACDialogos.LabelBotom.Si_No) = DialogResult.Yes Then
+            setInstancia(ACUtilitarios.ACSetInstancia.Modificado)
+            setInstanciaModificar(False) : setRol(Constantes.Seteo.Desactivar)
+
+            ''cotización debe permitir modificar los datos, cuando se encuentre en estado "I"
+            If m_eabas_cotizacionescompra.COTCO_Estado() = EABAS_CotizacionesCompra.getEstado(EABAS_CotizacionesCompra.Estado.Ingresado) Then
+               '' Los items son eliminados para ser ingresados de nuevo
+               'c1grdDetalle.Clear()
+               'c1grdDetalle.RemoveItem()
+            End If
+
+            c1grdDetalle.AllowEditing = True
+
+            actxaProdCodigo.Focus()
+            acTool.ACBtnImprimirVisible = False : acTool.ACBtnAnularVisible = False : acTool.ACBtnBuscarVisible = False
+         End If
+      Catch ex As Exception
+         ACControles.ACDialogos.ACMostrarMensajeInformacion(String.Format("Información: {0}", Me.Text), "No se puede modificar.")
+      End Try
+   End Sub
+
+   Private Sub acTool_ACBtnNuevo_Click(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles acTool.ACBtnNuevo_Click
+      Try
+         nuevaCotizacion()
+         frmCons = New CProductos(CProductos.Origen.Cotizaciones) With {.StartPosition = FormStartPosition.CenterScreen}
+         '' Activar las opciones generales del teclado
+         KeyPreview = True
+
+         '' Campos Obligatorios
+         'actxaCodigo.Focus()
+         'eprError.SetError(Me.actxaProvCodigo, "Campo Obligatorio")
+         eprError.SetError(Me.actxaProvRazonSocial, "Campo Obligatorio")
+         eprError.SetError(Me.actxaProvRuc, "Campo Obligatorio")
+         Me.KeyPreview = True
+
+      Catch ex As Exception
+         acTool.setInstancia(ACControles.ACToolBarMantHorizontalNew.TipoInstancia.Cancelar)
+         ACControles.ACDialogos.ACMostrarMensajeError(String.Format("Error: {0}", Me.Text), "Ocurrio un error en el proceso Nueva Cotización/Pedido", ex)
+      End Try
+   End Sub
+
+   Private Sub acTool_ACBtnGrabar_Click(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles acTool.ACBtnGrabar_Click
+      Dim m_msg As String = ""
+      Try
+         If grabarCotizCompra(m_msg) Then
+            '' Manejar las opciones de la barra de herramientas
+            acTool.setInstancia(ACControles.ACToolBarMantHorizontalNew.TipoInstancia.Cancelar)
+            tabMantenimiento.SelectedTab = tabBusqueda
+            ACControles.ACDialogos.ACMostrarMensajeSatisfactorio(String.Format("Información: {0}", Me.Text), "Grabado Satisfactoriamente")
+            acTool.ACBtnModificarVisible = m_proceso_modificar
+            txtBusqueda_ACAyudaClick(Nothing, Nothing)
+            setInstancia(ACUtilitarios.ACSetInstancia.Guardar)
+            c1grdDetalle.AllowEditing = False
+         Else
+            acTool.setInstancia(ACControles.ACToolBarMantHorizontalNew.TipoInstancia.Nuevo)
+         End If
+      Catch ex As Exception
+         acTool.setInstancia(ACControles.ACToolBarMantHorizontalNew.TipoInstancia.Nuevo)
+         ACControles.ACDialogos.ACMostrarMensajeError(String.Format("Error: {0}", Me.Text), "Ocurrio un error en el proceso Grabar Cotización/Pedido", ex)
+      End Try
+   End Sub
+
+   Private Sub acTool_ACBtnCancelar_Click(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles acTool.ACBtnCancelar_Click, acTool.ACBtnBuscar_Click
+      Try
+         If pnlItem.Enabled Then
+            If m_eabas_cotizacionescompra.ListABAS_CotizacionesCompraDetalle.Count > 0 Then
+               If ACControles.ACDialogos.ACMostrarMensajePregunta(String.Format("Cancelar Pedido/Cotización: {0}", Me.Text) _
+                , "Desea cancelar los cambios?" _
+                , ACControles.ACDialogos.LabelBotom.Si_No) = DialogResult.Yes Then
+                  tabMantenimiento.SelectedTab = tabBusqueda
+                  acTool.ACBtnModificarVisible = m_proceso_modificar
+                  setInstancia(ACUtilitarios.ACSetInstancia.Deshacer)
+               Else
+                  acTool.setInstancia(ACControles.ACToolBarMantHorizontalNew.TipoInstancia.Nuevo)
+               End If
+            Else
+               tabMantenimiento.SelectedTab = tabBusqueda
+               acTool.ACBtnModificarVisible = m_proceso_modificar
+               setInstancia(ACUtilitarios.ACSetInstancia.Deshacer)
+            End If
+         Else
+            tabMantenimiento.SelectedTab = tabBusqueda
+            acTool.ACBtnModificarVisible = m_proceso_modificar
+            setInstancia(ACUtilitarios.ACSetInstancia.Deshacer)
+         End If
+      Catch ex As Exception
+         ACControles.ACDialogos.ACMostrarMensajeError(String.Format("Error: {0}", Me.Text), "Ocurrio un error en el proceso cancelar la Cotización/Pedido", ex)
+      End Try
+   End Sub
+
+   Private Sub acTool_ACBtnAnular_Click(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles acTool.ACBtnAnular_Click
+      Try
+         If ACControles.ACDialogos.ACMostrarMensajePregunta(String.Format("Anular Cotización: {0}", Me.Text) _
+            , String.Format("Desea Anular la Cotización: {0}?", CType(bs_cotizacionescompras.Current, EABAS_CotizacionesCompra).COTCO_Codigo) _
+            , ACControles.ACDialogos.LabelBotom.Si_No) = DialogResult.Yes Then
+            tabMantenimiento.SelectedTab = tabBusqueda
+            acTool.ACBtnModificarVisible = m_proceso_modificar
+            setInstancia(ACUtilitarios.ACSetInstancia.Deshacer)
+            managerABAS_CotizacionesCompra.ABAS_CotizacionesCompra = New EABAS_CotizacionesCompra()
+            managerABAS_CotizacionesCompra.ABAS_CotizacionesCompra.COTCO_Codigo = CType(bs_cotizacionescompras.Current, EABAS_CotizacionesCompra).COTCO_Codigo
+            managerABAS_CotizacionesCompra.ABAS_CotizacionesCompra.COTCO_Estado = EABAS_CotizacionesCompra.getEstado(EABAS_CotizacionesCompra.Estado.Anulado)
+            managerABAS_CotizacionesCompra.Guardar(GApp.Usuario)
+            txtBusqueda_ACAyudaClick(Nothing, Nothing)
+         Else
+            acTool.setInstancia(ACControles.ACToolBarMantHorizontalNew.TipoInstancia.Nuevo)
+         End If
+      Catch ex As Exception
+         ACControles.ACDialogos.ACMostrarMensajeError(String.Format("Error: {0}", Me.Text), "Ocurrio un error en el proceso Anular Cotización", ex)
+      End Try
+   End Sub
+
+   Private Sub acTool_ACBtnSalir_Click(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles acTool.ACBtnSalir_Click
+      Try
+         Me.Close()
+      Catch ex As Exception
+         ACControles.ACDialogos.ACMostrarMensajeError(String.Format("Error: {0}", Me.Text), "Ocurrio un error en el proceso Salir", ex)
+      End Try
+   End Sub
+
+   Private Sub acTool_ACBtnBuscar_Click(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles acTool.ACBtnBuscar_Click
+      Try
+         tabMantenimiento.SelectedTab = tabBusqueda
+         acTool.ACBtnModificarVisible = m_proceso_modificar
+         setInstancia(ACUtilitarios.ACSetInstancia.Deshacer)
+      Catch ex As Exception
+         ACControles.ACDialogos.ACMostrarMensajeError(String.Format("Error: {0}", Me.Text), "Ocurrio un error en el proceso buscar", ex)
+      End Try
+   End Sub
+
+   Private Sub acTool_ACBtnImprimir_Click(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles acTool.ACBtnImprimir_Click
+      Try
+         If Not IsNothing(bs_cotizacionescompras) Then
+            If Not IsNothing(bs_cotizacionescompras.Current) Then
+               Dim x_codigo As String = CType(bs_cotizacionescompras.Current, EABAS_CotizacionesCompra).COTCO_Codigo
+               If managerGenerarCotizCompra.CargarCotizacion(x_codigo, True) Then
+                  Dim dtDatos As New DTOrdenCompra
+                  Dim i As Integer = 0
+
+                  Dim _dr As DataRow = dtDatos.OrdenCompra.NewRow()
+
+                  _dr("Codigo") = managerGenerarCotizCompra.EABAST_CotizacionesCompra.COTCO_Codigo
+                  _dr("ORDCO_FechaDocumento") = managerGenerarCotizCompra.EABAST_CotizacionesCompra.COTCO_FechaDocumento
+                  _dr("ORDCO_TelefonoProveedor") = managerGenerarCotizCompra.EABAST_CotizacionesCompra.ENTID_Telefono
+                  _dr("ORDCO_CorreoProveedor") = managerGenerarCotizCompra.EABAST_CotizacionesCompra.ENTID_Correo
+                  '_dr("ORDCO_Condiciones") = Item("ORDCO_Condiciones")
+                  _dr("ORDCO_DireccionProveedor") = managerGenerarCotizCompra.EABAST_CotizacionesCompra.ENTID_Direccion
+                  _dr("ENTID_Proveedor") = managerGenerarCotizCompra.EABAST_CotizacionesCompra.ENTID_Proveedor
+                  _dr("Usuario") = GApp.EUsuarioEntidad.ENTID_Nombres
+                  dtDatos.OrdenCompra.Rows.Add(_dr)
+
+                  For Each Item As EABAS_CotizacionesCompraDetalle In managerGenerarCotizCompra.EABAST_CotizacionesCompra.ListABAS_CotizacionesCompraDetalle
+                     Dim x_dr As DataRow = dtDatos.OrdenCompraDetalle.NewRow()
+                     x_dr("Codigo") = managerGenerarCotizCompra.EABAST_CotizacionesCompra.COTCO_Codigo
+                     x_dr("ARTIC_Descripcion") = Item.ARTIC_Descripcion
+                     x_dr("ORDCD_Item") = Item.COTCD_Item
+                     x_dr("ORDCD_Cantidad") = Item.COTCD_Cantidad
+                     dtDatos.OrdenCompraDetalle.Rows.Add(x_dr)
+
+                  Next
+                  Dim Informe As New CRCotizCompra
+                  Informe.SetDataSource(dtDatos)
+                  Dim reporte As New RReportView(Informe)
+
+                  reporte.ShowDialog()
+               End If
+            Else
+               ACControles.ACDialogos.ACMostrarMensajeInformacion(String.Format("Información: {0}", Me.Text), "No se puede cargar el reporte por que no se ha seleccionado ninguna Orden de Compra")
+            End If
+         Else
+            ACControles.ACDialogos.ACMostrarMensajeInformacion(String.Format("Información: {0}", Me.Text), "No se puede cargar el reporte por que no se ha cargado ningun registro")
+         End If
+      Catch ex As Exception
+         ACControles.ACDialogos.ACMostrarMensajeError(String.Format("Error: {0}", Me.Text), "Ocurrio un error en el proceso Imprimir Cotización/Pedido", ex)
+      End Try
+   End Sub
+#End Region
+
+#Region " Ayuda para Proveedor "
+
+   'Private Sub actxaProvCodigo_KeyDown(ByVal sender As System.Object, ByVal e As System.Windows.Forms.KeyEventArgs)
+   '   Try
+   '      If e.KeyData = Keys.Enter And actxaProvCodigo.Text.ToString().Length >= Constantes.LongitudCodigo Then
+   '         '' Cargar datos adicionales cliente
+   '         If managerEntidades.Cargar(actxaProvCodigo.Text, EEntidades.TipoInicializacion.Cliente) Then
+   '            '' Cargar datos del cliente
+   '            m_eabas_cotizacionescompra.ENTID_CodigoProveedor = managerEntidades.Entidades.ENTID_Codigo
+   '            m_eentidades = managerEntidades.Entidades
+   '            actxaProvCodigo.Text = managerEntidades.Entidades.ENTID_Codigo
+   '            actxaProvRazonSocial.Text = managerEntidades.Entidades.ENTID_RazonSocial
+   '            actxaProvRuc.Text = managerEntidades.Entidades.ENTID_NroDocumento
+   '            txtDireccion.Text = managerEntidades.Entidades.ENTID_Direccion
+   '            setRol(IIf(getFilterRol(), Constantes.Seteo.Activar, Constantes.Seteo.Desactivar))
+   '            pnlItem.Enabled = True
+   '         Else
+   '            ACControles.ACDialogos.ACMostrarMensajeInformacion(String.Format("Información: {0}", Me.Text), String.Format("El codigo {0} no existe", actxaProvCodigo.Text))
+   '            btnClean_Click(Nothing, Nothing)
+   '         End If
+   '      End If
+   '   Catch ex As Exception
+   '      ACControles.ACDialogos.ACMostrarMensajeError(String.Format("Error: {0}", Me.Text), "Ocurrio un error en el proceso Cargar Cliente", ex)
+   '   End Try
+   'End Sub
+
+   Private Sub actxaProvCodigo_ACAyudaClick(ByVal sender As System.Object, ByVal e As System.EventArgs)
+      Try
+         AyudaEntidad(actxaProvRuc.Text, "ENTID_Codigo", EEntidades.TipoEntidad.ProveedoresLogistica)
+      Catch ex As Exception
+         ACControles.ACDialogos.ACMostrarMensajeError(String.Format("Error: {0}", Me.Text), "Ocurrio un error en el proceso busqueda de cliente por codigo", ex)
+      End Try
+   End Sub
+
+   Private Sub actxaProvRazonSocial_ACAyudaClick(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles actxaProvRazonSocial.ACAyudaClick
+      Try
+         AyudaEntidad(actxaProvRazonSocial.Text, "ENTID_RazonSocial", EEntidades.TipoEntidad.ProveedoresLogistica)
+      Catch ex As Exception
+         ACControles.ACDialogos.ACMostrarMensajeError(String.Format("Error: {0}", Me.Text), "Ocurrio un error en el proceso busqueda de cliente por Nombre/Razon Social", ex)
+      End Try
+   End Sub
+
+   Private Sub actxaProvRuc_ACAyudaClick(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles actxaProvRuc.ACAyudaClick
+      Try
+         AyudaEntidad(actxaProvRuc.Text, "ENTID_NroDocumento", EEntidades.TipoEntidad.Proveedores)
+      Catch ex As Exception
+         ACControles.ACDialogos.ACMostrarMensajeError(String.Format("Error: {0}", Me.Text), "Ocurrio un error en el proceso Documento de Identidad", ex)
+      End Try
+   End Sub
+
+#End Region
+
+#Region " Ayudas "
+
+   Private Sub txtBusqueda_ACAyudaClick(ByVal sender As Object, ByVal e As EventArgs) Handles txtBusqueda.ACAyudaClick, btnConsultar.Click
+      Try
+         busqueda(txtBusqueda.Text)
+      Catch ex As Exception
+         ACControles.ACDialogos.ACMostrarMensajeError(String.Format("Error: {0}", Convert.ToString(Text)), "No se puede cargar la ayuda para las cotizaciones", ex)
+      End Try
+   End Sub
+
+   Private Sub actxaProdCodigo_ACAyudaClick(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles actxaProdCodigo.ACAyudaClick
+      Try
+         If IsNothing(frmCons) Then
+            frmCons = New CProductos(CProductos.Origen.Cotizaciones) With {.StartPosition = FormStartPosition.CenterScreen}
+         End If
+         Me.KeyPreview = False
+         If frmCons.ShowDialog() = Windows.Forms.DialogResult.OK Then
+            m_earticulos = frmCons.Articulo
+            setProducto(True)
+            Dim _filter As New ACFiltrador(Of ETipos)
+            _filter.ACFiltro = String.Format("TIPOS_Codigo={0}", m_earticulos.TIPOS_CodUnidadMedida)
+            If _filter.ACFiltrar(Colecciones.TiposUniMedDecimal).Count > 0 Then
+               actxnProdCantidad.ACDecimales = 2
+            Else
+               actxnProdCantidad.ACDecimales = 0
+            End If
+            Me.KeyPreview = True
+         End If
+      Catch ex As Exception
+         ACControles.ACDialogos.ACMostrarMensajeError(String.Format("Error: {0}", Me.Text), "Ocurrio un error en el proceso cargar productos", ex)
+      End Try
+   End Sub
+
+#Region "Ayuda Proveedor"
+   Private Sub actxaProvRuc_KeyDown(ByVal sender As System.Object, ByVal e As System.Windows.Forms.KeyEventArgs) Handles actxaProvRuc.KeyDown
+      Try
+         If e.KeyData = Keys.Enter Then
+            If actxaProvRuc.Text.ToString().Length >= Constantes.LongitudCodigo Then
+               '' Cargar datos adicionales cliente
+               If actxaProvRuc.ACAyuda.Enabled = True Then
+                  If managerEntidades.CargarDocIden(actxaProvRuc.Text, EEntidades.TipoInicializacion.Proveedor) Then
+                     '' Cargar datos del cliente   
+                     m_eabas_cotizacionescompra.ENTID_CodigoProveedor = managerEntidades.Entidades.ENTID_Codigo
+                     m_eentidades = managerEntidades.Entidades
+
+                     actxaProvRazonSocial.Text = managerEntidades.Entidades.ENTID_RazonSocial
+                     actxaProvRuc.Text = managerEntidades.Entidades.ENTID_NroDocumento
+                     txtDireccion.Text = managerEntidades.Entidades.ENTID_Direccion
+                     txtTelefono.Text = managerEntidades.Entidades.ENTID_Telefono1
+                     txtEMail.Text = managerEntidades.Entidades.ENTID_EMail
+                     'cargarProveedor(managerEntidades.Proveedor.ENTID_Codigo)
+                     setRolProveedor(IIf(getFilterRol(), Seteo.Activar, Seteo.Desactivar))
+                     pnlItem.Enabled = True
+                     Label18.Focus()
+                  Else
+                     If ACControles.ACDialogos.ACMostrarMensajePregunta(String.Format("Documento de Identidad: {0}", Me.Text) _
+                                     , String.Format("El Documento de Identidad {0} no existe, ¿Desea Ingresar la Entidad?", actxaProvRuc.Text) _
+                                     , ACControles.ACDialogos.LabelBotom.Si_No) = DialogResult.Yes Then
+                        NuevoProveedor(actxaProvRuc.Text)
+                     Else
+                        btnClean_Click(Nothing, Nothing)
+                        Label4.Focus()
+                     End If
+                  End If
+               End If
+            Else
+               ACControles.ACDialogos.ACMostrarMensajeInformacion(String.Format("Información: {0}", Me.Text), String.Format("El Documento de Identidad {0} no existe, el documento ingresado tienen menos de 8 numeros", actxaProvRuc.Text))
+               btnClean_Click(Nothing, Nothing)
+               Label4.Focus()
+            End If
+         End If
+      Catch ex As Exception
+         ACControles.ACDialogos.ACMostrarMensajeError(String.Format("Error: {0}", Me.Text), "Ocurrio un error en el proceso Cargar Proveedor", ex)
+      End Try
+   End Sub
+#End Region
+
+
+#End Region
+
+#Region " Textos "
+
+   Private Sub txtBusqueda_Enter(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles txtBusqueda.Enter
+      Me.KeyPreview = False
+   End Sub
+
+   Private Sub txtOpcion_KeyPress(ByVal sender As System.Object, ByVal e As System.Windows.Forms.KeyPressEventArgs) Handles txtOpcion.KeyPress
+      Try
+         Select Case e.KeyChar
+            Case "+"c
+               If m_modArticulo Then
+                  e.Handled = True
+                  CType(bs_detcotizacionescompras.Current, EABAS_CotizacionesCompraDetalle).COTCD_Cantidad = actxnProdCantidad.Text
+                  setProducto(False)
+                  c1grdDetalle.Enabled = True
+                  Me.KeyPreview = False
+                  m_modArticulo = False
+               Else
+                  e.Handled = True
+                  If addDetalle() Then
+                     actxaProdCodigo.Focus()
+                     txtOpcion.Text = ""
+                     txtOpcion.SelectAll()
+                     setProducto(False)
+                     Me.KeyPreview = False
+                     Me.KeyPreview = True
+                  Else
+                     actxnProdCantidad.Focus()
+                     actxnProdCantidad.SelectAll()
+                  End If
+               End If
+            Case "-"c
+               e.Handled = True
+            Case Else
+               e.Handled = True
+         End Select
+      Catch ex As Exception
+         ACControles.ACDialogos.ACMostrarMensajeError(String.Format("Error: {0}", Me.Text), "Ocurrio un error en el proceso opciones", ex)
+      End Try
+   End Sub
+
+   Private Sub txtOpcion_KeyDown(ByVal sender As System.Object, ByVal e As System.Windows.Forms.KeyEventArgs) Handles txtOpcion.KeyDown
+      Try
+         Select Case e.KeyData
+            Case Keys.Enter
+               addDetalle()
+               setProducto(False)
+               acTool_ACBtnGrabar_Click(Nothing, Nothing)
+               Me.KeyPreview = False
+               m_modArticulo = False
+            Case Keys.Escape
+               setProducto(False)
+               c1grdDetalle.Enabled = True
+               Me.KeyPreview = False
+               m_modArticulo = False
+            Case Else
+
+         End Select
+      Catch ex As Exception
+         ACControles.ACDialogos.ACMostrarMensajeError(String.Format("Error: {0}", Text), "No se puede procesar", ex)
+      End Try
+   End Sub
+
+   Private Sub txtBusqueda_KeyUp(ByVal sender As Object, ByVal e As KeyEventArgs) Handles txtBusqueda.KeyUp
+      Try
+         If e.KeyCode = Keys.Enter Then
+            busqueda(txtBusqueda.Text)
+         End If
+      Catch ex As Exception
+         Throw ex
+      End Try
+   End Sub
+
+   Private Sub txtBusqueda_KeyDown(ByVal sender As System.Object, ByVal e As System.Windows.Forms.KeyEventArgs) Handles txtBusqueda.KeyDown
+      Try
+         Select Case e.KeyCode
+            Case Keys.Down
+               bs_cotizacionescompras.Position += 1
+               e.Handled = True
+               Exit Select
+            Case Keys.Up
+               bs_cotizacionescompras.Position -= 1
+               e.Handled = True
+               Exit Select
+            Case Keys.PageDown
+               bs_cotizacionescompras.Position += 10
+               e.Handled = True
+               Exit Select
+            Case Keys.PageUp
+               bs_cotizacionescompras.Position -= 10
+               e.Handled = True
+               Exit Select
+            Case Keys.Enter
+               'actsbtnPrevisualizar_Click(Nothing, Nothing)
+         End Select
+      Catch ex As Exception
+         ACControles.ACDialogos.ACMostrarMensajeError(String.Format("Error: {0}", Me.Text), "No puede completar el proceso ejecutado por el teclado", ex)
+      End Try
+   End Sub
+
+#End Region
+
+#Region " Grillas "
+
+   Private Sub c1grdBusqueda_BeforeSort(ByVal sender As System.Object, ByVal e As C1.Win.C1FlexGrid.SortColEventArgs) Handles c1grdBusqueda.BeforeSort
+      Try
+         OrdenarPedidos(c1grdBusqueda.Cols(e.Col).UserData)
+         c1grdBusqueda.Subtotal(AggregateEnum.Clear)
+         chkAgrupar.Checked = False
+      Catch ex As Exception
+         ACControles.ACDialogos.ACMostrarMensajeError(String.Format("Error: {0}", Me.Text), "Ocurrio un error en el proceso ordenar", ex)
+      End Try
+   End Sub
+
+   Private Sub c1grdBusqueda_DoubleClick(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles c1grdBusqueda.DoubleClick
+      If Not IsNothing(bs_cotizacionescompras) Then
+         If Not IsNothing(bs_cotizacionescompras.Current) Then
+            '' Codigo
+            actsbtnPrevisualizar_Click(Nothing, Nothing)
+         Else
+            ACControles.ACDialogos.ACMostrarMensajeInformacion(String.Format("Información: {0}", Me.Text), "No se puede <<Mensaje>> ")
+         End If
+      Else
+         ACControles.ACDialogos.ACMostrarMensajeInformacion(String.Format("Información: {0}", Me.Text), "No se puede <<Mensaje>> ")
+      End If
+   End Sub
+
+   Private Sub c1grdBusqueda_OwnerDrawCell(ByVal sender As System.Object, ByVal e As C1.Win.C1FlexGrid.OwnerDrawCellEventArgs) Handles c1grdBusqueda.OwnerDrawCell
+      Try
+         If e.Row < c1grdBusqueda.Rows.Fixed OrElse e.Col < c1grdBusqueda.Cols.Fixed Then Return
+         If c1grdBusqueda.Cols(e.Col).Name = "COTCO_FechaDocumento" Or c1grdBusqueda.Cols(e.Col).Name = "ALMAC_Descripcion" Or c1grdBusqueda.Cols(e.Col).Name = "ENTID_Proveedor" Then
+            If c1grdBusqueda.Rows(e.Row)("COTCO_Estado") = EABAS_CotizacionesCompra.getEstado(EABAS_CotizacionesCompra.Estado.Confirmado) Then
+               e.Style = c1grdBusqueda.Styles("Facturado")
+            End If
+         End If
+         If c1grdBusqueda.Rows(e.Row)("COTCO_Estado") = EABAS_CotizacionesCompra.getEstado(EABAS_CotizacionesCompra.Estado.Anulado) Then
+            e.Style = c1grdBusqueda.Styles("Anulado")
+         End If
+      Catch ex As Exception
+         ACControles.ACDialogos.ACMostrarMensajeError(String.Format("Error: {0}", Me.Text), "Ocurrio un error en el proceso cambia de color", ex)
+      End Try
+   End Sub
+
+   Private Sub c1grdDetalle_Enter(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles c1grdDetalle.Enter
+      Me.KeyPreview = False
+   End Sub
+
+   Private Sub c1grdDetalle_KeyDown(ByVal sender As System.Object, ByVal e As System.Windows.Forms.KeyEventArgs)
+      Try
+         'e.SuppressKeyPress = True
+         Select Case e.KeyCode
+            Case Keys.Enter
+               subirItem()
+               'SendKeys.Send("{F4}")
+               c1grdDetalle.Enabled = False
+               m_modArticulo = True
+            Case Keys.Delete
+               If ACControles.ACDialogos.ACMostrarMensajePregunta(String.Format("Quitar Registro: {0}", Me.Text) _
+             , String.Format("Desea quitar el Articulo : {0} ", CType(bs_detcotizacionescompras.Current, EABAS_CotizacionesCompraDetalle).ARTIC_Descripcion) _
+             , ACControles.ACDialogos.LabelBotom.Si_No) = DialogResult.Yes Then
+                  Dim m_det As EABAS_CotizacionesCompraDetalle = CType(bs_detcotizacionescompras.Current, EABAS_CotizacionesCompraDetalle)
+                  m_eabas_cotizacionescompra.ListABAS_CotizacionesCompraDetalle.Remove(m_det)
+                  bs_detcotizacionescompras.ResetBindings(False)
+                  m_eabas_cotizacionescompra.Instanciar(ACEInstancia.Modificado)
+               End If
+            Case Else
+
+         End Select
+      Catch ex As Exception
+         ACControles.ACDialogos.ACMostrarMensajeError(String.Format("Error: {0}", Text), "No se puede calcular carga el Item", ex)
+      End Try
+   End Sub
+
+#End Region
+
+   Private Sub _KeyUp(ByVal sender As System.Object, ByVal e As System.Windows.Forms.KeyEventArgs) Handles MyBase.KeyUp
+
+      If e.KeyCode = Keys.Enter Then
+         If sender.Name = "txtBusqueda" Then
+            Exit Sub
+         End If
+         If TypeOf ActiveControl Is ACControles.ACTextBoxAyuda And ActiveControl.Name = "actxaProvRuc" Then
+            Exit Sub
+         End If
+         If TypeOf ActiveControl Is ACControles.ACTextBoxAyuda And ActiveControl.Name = "actxaProdCodigo" Then
+            Exit Sub
+         End If
+         SendKeys.Send("{TAB}")
+      End If
+   End Sub
+
+   Private Sub TCotCompras_Activated(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles MyBase.Activated
+      txtBusqueda_ACAyudaClick(Nothing, Nothing)
+   End Sub
+
+   Private Sub AcFecha_ACFecIni_KeyDown(ByVal sender As System.Object, ByVal e As System.Windows.Forms.KeyEventArgs) Handles AcFecha.ACFecIni_KeyDown
+      If e.KeyData = Keys.Enter Then
+         AcFecha.ACDtpFecha_A.Focus()
+      End If
+   End Sub
+
+   Private Sub AcFecha_ACFecFin_KeyDown(ByVal sender As System.Object, ByVal e As System.Windows.Forms.KeyEventArgs) Handles AcFecha.ACFecFin_KeyDown
+      If e.KeyData = Keys.Enter Then
+         txtBusqueda_ACAyudaClick(Nothing, Nothing)
+      End If
+   End Sub
+
+#End Region
+
+   Private Sub acTool_ACBtnRehusar_Click(sender As Object, e As EventArgs) Handles acTool.ACBtnRehusar_Click
+      Try
+
+      Catch ex As Exception
+
+      End Try
+   End Sub
+End Class

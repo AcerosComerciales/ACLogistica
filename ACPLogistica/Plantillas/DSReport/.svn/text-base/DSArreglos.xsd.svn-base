@@ -1,0 +1,58 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<xs:schema id="DSArreglos" targetNamespace="http://tempuri.org/DSArreglos.xsd" xmlns:mstns="http://tempuri.org/DSArreglos.xsd" xmlns="http://tempuri.org/DSArreglos.xsd" xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata" xmlns:msprop="urn:schemas-microsoft-com:xml-msprop" attributeFormDefault="qualified" elementFormDefault="qualified">
+  <xs:annotation>
+    <xs:appinfo source="urn:schemas-microsoft-com:xml-msdatasource">
+      <DataSource DefaultConnectionIndex="0" FunctionsComponentName="QueriesTableAdapter" Modifier="AutoLayout, AnsiClass, Class, Public" SchemaSerializationMode="IncludeSchema" xmlns="urn:schemas-microsoft-com:xml-msdatasource">
+        <Connections />
+        <Tables />
+        <Sources />
+      </DataSource>
+    </xs:appinfo>
+  </xs:annotation>
+  <xs:element name="DSArreglos" msdata:IsDataSet="true" msdata:UseCurrentLocale="true" msprop:EnableTableAdapterManager="true" msprop:Generator_DataSetName="DSArreglos" msprop:Generator_UserDSName="DSArreglos">
+    <xs:complexType>
+      <xs:choice minOccurs="0" maxOccurs="unbounded">
+        <xs:element name="CTRL_Arreglos" msprop:Generator_TableClassName="CTRL_ArreglosDataTable" msprop:Generator_TableVarName="tableCTRL_Arreglos" msprop:Generator_TablePropName="CTRL_Arreglos" msprop:Generator_RowDeletingName="CTRL_ArreglosRowDeleting" msprop:Generator_RowChangingName="CTRL_ArreglosRowChanging" msprop:Generator_RowEvHandlerName="CTRL_ArreglosRowChangeEventHandler" msprop:Generator_RowDeletedName="CTRL_ArreglosRowDeleted" msprop:Generator_UserTableName="CTRL_Arreglos" msprop:Generator_RowChangedName="CTRL_ArreglosRowChanged" msprop:Generator_RowEvArgName="CTRL_ArreglosRowChangeEvent" msprop:Generator_RowClassName="CTRL_ArreglosRow">
+          <xs:complexType>
+            <xs:sequence>
+              <xs:element name="RUC" msprop:Generator_ColumnVarNameInTable="columnRUC" msprop:Generator_ColumnPropNameInRow="RUC" msprop:Generator_ColumnPropNameInTable="RUCColumn" msprop:Generator_UserColumnName="RUC" type="xs:string" minOccurs="0" />
+              <xs:element name="Empresa" msprop:Generator_ColumnVarNameInTable="columnEmpresa" msprop:Generator_ColumnPropNameInRow="Empresa" msprop:Generator_ColumnPropNameInTable="EmpresaColumn" msprop:Generator_UserColumnName="Empresa" type="xs:string" minOccurs="0" />
+              <xs:element name="Almacen" msprop:Generator_ColumnVarNameInTable="columnAlmacen" msprop:Generator_ColumnPropNameInRow="Almacen" msprop:Generator_ColumnPropNameInTable="AlmacenColumn" msprop:Generator_UserColumnName="Almacen" type="xs:string" minOccurs="0" />
+              <xs:element name="Titulo" msprop:Generator_ColumnVarNameInTable="columnTitulo" msprop:Generator_ColumnPropNameInRow="Titulo" msprop:Generator_ColumnPropNameInTable="TituloColumn" msprop:Generator_UserColumnName="Titulo" type="xs:string" minOccurs="0" />
+              <xs:element name="ARREG_Codigo" msprop:Generator_ColumnVarNameInTable="columnARREG_Codigo" msprop:Generator_ColumnPropNameInRow="ARREG_Codigo" msprop:Generator_ColumnPropNameInTable="ARREG_CodigoColumn" msprop:Generator_UserColumnName="ARREG_Codigo" type="xs:string" minOccurs="0" />
+              <xs:element name="TIPOS_CodTipoArreglo" msprop:Generator_ColumnVarNameInTable="columnTIPOS_CodTipoArreglo" msprop:Generator_ColumnPropNameInRow="TIPOS_CodTipoArreglo" msprop:Generator_ColumnPropNameInTable="TIPOS_CodTipoArregloColumn" msprop:Generator_UserColumnName="TIPOS_CodTipoArreglo" type="xs:string" minOccurs="0" />
+              <xs:element name="DOCVE_Codigo" msprop:Generator_ColumnVarNameInTable="columnDOCVE_Codigo" msprop:Generator_ColumnPropNameInRow="DOCVE_Codigo" msprop:Generator_ColumnPropNameInTable="DOCVE_CodigoColumn" msprop:Generator_UserColumnName="DOCVE_Codigo" type="xs:string" minOccurs="0" />
+              <xs:element name="ALMAC_Id" msprop:Generator_ColumnVarNameInTable="columnALMAC_Id" msprop:Generator_ColumnPropNameInRow="ALMAC_Id" msprop:Generator_ColumnPropNameInTable="ALMAC_IdColumn" msprop:Generator_UserColumnName="ALMAC_Id" type="xs:string" minOccurs="0" />
+              <xs:element name="ARREG_Serie" msprop:Generator_ColumnVarNameInTable="columnARREG_Serie" msprop:Generator_ColumnPropNameInRow="ARREG_Serie" msprop:Generator_ColumnPropNameInTable="ARREG_SerieColumn" msprop:Generator_UserColumnName="ARREG_Serie" type="xs:string" minOccurs="0" />
+              <xs:element name="ARREG_Numero" msprop:Generator_ColumnVarNameInTable="columnARREG_Numero" msprop:Generator_ColumnPropNameInRow="ARREG_Numero" msprop:Generator_ColumnPropNameInTable="ARREG_NumeroColumn" msprop:Generator_UserColumnName="ARREG_Numero" type="xs:string" minOccurs="0" />
+              <xs:element name="ARREG_Fecha" msprop:Generator_ColumnVarNameInTable="columnARREG_Fecha" msprop:Generator_ColumnPropNameInRow="ARREG_Fecha" msprop:Generator_ColumnPropNameInTable="ARREG_FechaColumn" msprop:Generator_UserColumnName="ARREG_Fecha" type="xs:string" minOccurs="0" />
+              <xs:element name="ARREG_FechaIngreso" msprop:Generator_ColumnVarNameInTable="columnARREG_FechaIngreso" msprop:Generator_ColumnPropNameInRow="ARREG_FechaIngreso" msprop:Generator_ColumnPropNameInTable="ARREG_FechaIngresoColumn" msprop:Generator_UserColumnName="ARREG_FechaIngreso" type="xs:string" minOccurs="0" />
+              <xs:element name="ARREG_Estado" msprop:Generator_ColumnVarNameInTable="columnARREG_Estado" msprop:Generator_ColumnPropNameInRow="ARREG_Estado" msprop:Generator_ColumnPropNameInTable="ARREG_EstadoColumn" msprop:Generator_UserColumnName="ARREG_Estado" type="xs:string" minOccurs="0" />
+              <xs:element name="ARREG_Observaciones" msprop:Generator_ColumnVarNameInTable="columnARREG_Observaciones" msprop:Generator_ColumnPropNameInRow="ARREG_Observaciones" msprop:Generator_ColumnPropNameInTable="ARREG_ObservacionesColumn" msprop:Generator_UserColumnName="ARREG_Observaciones" type="xs:string" minOccurs="0" />
+              <xs:element name="TIPOS_TipoArreglo" msprop:Generator_ColumnVarNameInTable="columnTIPOS_TipoArreglo" msprop:Generator_ColumnPropNameInRow="TIPOS_TipoArreglo" msprop:Generator_ColumnPropNameInTable="TIPOS_TipoArregloColumn" msprop:Generator_UserColumnName="TIPOS_TipoArreglo" type="xs:string" minOccurs="0" />
+              <xs:element name="Creador" msprop:Generator_ColumnVarNameInTable="columnCreador" msprop:Generator_ColumnPropNameInRow="Creador" msprop:Generator_ColumnPropNameInTable="CreadorColumn" msprop:Generator_UserColumnName="Creador" type="xs:string" minOccurs="0" />
+              <xs:element name="Imprime" msprop:Generator_ColumnVarNameInTable="columnImprime" msprop:Generator_ColumnPropNameInRow="Imprime" msprop:Generator_ColumnPropNameInTable="ImprimeColumn" msprop:Generator_UserColumnName="Imprime" type="xs:string" minOccurs="0" />
+            </xs:sequence>
+          </xs:complexType>
+        </xs:element>
+        <xs:element name="CTRL_ArreglosDetalle" msprop:Generator_TableClassName="CTRL_ArreglosDetalleDataTable" msprop:Generator_TableVarName="tableCTRL_ArreglosDetalle" msprop:Generator_TablePropName="CTRL_ArreglosDetalle" msprop:Generator_RowDeletingName="CTRL_ArreglosDetalleRowDeleting" msprop:Generator_RowChangingName="CTRL_ArreglosDetalleRowChanging" msprop:Generator_RowEvHandlerName="CTRL_ArreglosDetalleRowChangeEventHandler" msprop:Generator_RowDeletedName="CTRL_ArreglosDetalleRowDeleted" msprop:Generator_UserTableName="CTRL_ArreglosDetalle" msprop:Generator_RowChangedName="CTRL_ArreglosDetalleRowChanged" msprop:Generator_RowEvArgName="CTRL_ArreglosDetalleRowChangeEvent" msprop:Generator_RowClassName="CTRL_ArreglosDetalleRow">
+          <xs:complexType>
+            <xs:sequence>
+              <xs:element name="ARREG_Codigo" msprop:Generator_ColumnVarNameInTable="columnARREG_Codigo" msprop:Generator_ColumnPropNameInRow="ARREG_Codigo" msprop:Generator_ColumnPropNameInTable="ARREG_CodigoColumn" msprop:Generator_UserColumnName="ARREG_Codigo" type="xs:string" minOccurs="0" />
+              <xs:element name="ARRDT_Item" msprop:Generator_ColumnVarNameInTable="columnARRDT_Item" msprop:Generator_ColumnPropNameInRow="ARRDT_Item" msprop:Generator_ColumnPropNameInTable="ARRDT_ItemColumn" msprop:Generator_UserColumnName="ARRDT_Item" type="xs:string" minOccurs="0" />
+              <xs:element name="ARTIC_Codigo" msprop:Generator_ColumnVarNameInTable="columnARTIC_Codigo" msprop:Generator_ColumnPropNameInRow="ARTIC_Codigo" msprop:Generator_ColumnPropNameInTable="ARTIC_CodigoColumn" msprop:Generator_UserColumnName="ARTIC_Codigo" type="xs:string" minOccurs="0" />
+              <xs:element name="ARRDT_Cantidad" msprop:Generator_ColumnVarNameInTable="columnARRDT_Cantidad" msprop:Generator_ColumnPropNameInRow="ARRDT_Cantidad" msprop:Generator_ColumnPropNameInTable="ARRDT_CantidadColumn" msprop:Generator_UserColumnName="ARRDT_Cantidad" type="xs:string" minOccurs="0" />
+              <xs:element name="ARTIC_Descripcion" msprop:Generator_ColumnVarNameInTable="columnARTIC_Descripcion" msprop:Generator_ColumnPropNameInRow="ARTIC_Descripcion" msprop:Generator_ColumnPropNameInTable="ARTIC_DescripcionColumn" msprop:Generator_UserColumnName="ARTIC_Descripcion" type="xs:string" minOccurs="0" />
+              <xs:element name="TIPOS_UnidadMedida" msprop:Generator_ColumnVarNameInTable="columnTIPOS_UnidadMedida" msprop:Generator_ColumnPropNameInRow="TIPOS_UnidadMedida" msprop:Generator_ColumnPropNameInTable="TIPOS_UnidadMedidaColumn" msprop:Generator_UserColumnName="TIPOS_UnidadMedida" type="xs:string" minOccurs="0" />
+            </xs:sequence>
+          </xs:complexType>
+        </xs:element>
+      </xs:choice>
+    </xs:complexType>
+  </xs:element>
+  <xs:annotation>
+    <xs:appinfo>
+      <msdata:Relationship name="CTRL_Arreglos_CTRL_ArreglosDetalle" msdata:parent="CTRL_Arreglos" msdata:child="CTRL_ArreglosDetalle" msdata:parentkey="ARREG_Codigo" msdata:childkey="ARREG_Codigo" msprop:Generator_UserChildTable="CTRL_ArreglosDetalle" msprop:Generator_ChildPropName="GetCTRL_ArreglosDetalleRows" msprop:Generator_UserRelationName="CTRL_Arreglos_CTRL_ArreglosDetalle" msprop:Generator_ParentPropName="CTRL_ArreglosRow" msprop:Generator_RelationVarName="relationCTRL_Arreglos_CTRL_ArreglosDetalle" msprop:Generator_UserParentTable="CTRL_Arreglos" />
+    </xs:appinfo>
+  </xs:annotation>
+</xs:schema>

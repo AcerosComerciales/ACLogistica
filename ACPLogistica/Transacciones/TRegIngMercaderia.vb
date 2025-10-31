@@ -1,0 +1,1498 @@
+﻿Imports ACBLogistica
+Imports ACBVentas
+Imports ACELogistica
+Imports ACEVentas
+Imports ACFramework
+
+Imports Microsoft.Practices.Unity
+Imports C1.Win.C1FlexGrid
+Imports ACSeguridad
+
+Public Class TRegIngMercaderia
+#Region " Variables "
+    Private managerGenerarRegMercTransito As BGenerarRegMercTransito
+    Private managerConsultaArticulos As BConsultaArticulos
+    Private managerEntidades As BEntidades
+
+    Private m_eentidades As EEntidades
+    Private m_earticulos As EArticulos
+    Private managerGenerarGuias As BGenerarGuias
+
+    Private bs_detabas_ingresoscompra As BindingSource
+    Private bs_abas_ingresocompras As BindingSource
+    Private bs_tipodocingreso As BindingSource
+    Private bs_tipodocumento As BindingSource
+    '_M
+    'Private bs_detDocsCompra As BindingSource
+    Private _pesoTotal As Decimal = 0, _peso As Decimal
+    Private m_listBindHelper As List(Of ACBindHelper)
+
+    Private m_order As Integer = 1
+    Private m_modArticulo As Boolean = False
+
+    Private m_frmconsultas As COrdenesCompras
+    Private frmCons As CProductos
+    Private m_tconsulta As BGenerarRegMercTransito.TConsulta
+#End Region
+
+#Region " Propiedades "
+
+#End Region
+
+#Region " Constructores "
+    Public Sub New(ByVal x_icono As System.Drawing.Bitmap)
+
+        ' This call is required by the designer.
+        InitializeComponent()
+
+        ' Add any initialization after the InitializeComponent() call.
+        Try
+            Inicializar()
+            CargarPermisos()
+
+            If Not IsNothing(x_icono) Then Me.Icon = Icon.FromHandle(x_icono.GetHicon)
+        Catch ex As Exception
+            ACControles.ACDialogos.ACMostrarMensajeError(String.Format("Error: {0}", Me.Text), Colecciones.getError("00000"), ex)
+        End Try
+    End Sub
+
+    Private Sub Inicializar()
+        Try
+            tabMantenimiento.HideTabsMode = Crownwood.DotNetMagic.Controls.HideTabsModes.HideAlways
+            tabMantenimiento.SelectedTab = tabBusqueda
+            '' Inicializar los componentes con Unity
+            'managerABAS_DocsCompra = new BABAS_DocsCompra)("abas_docscompraDAO")
+            managerGenerarRegMercTransito = New BGenerarRegMercTransito(GApp.Periodo)
+            managerConsultaArticulos = New BConsultaArticulos(GApp.Periodo)
+            managerGenerarGuias = New BGenerarGuias(GApp.Almacen, GApp.Periodo, GApp.Zona, GApp.Sucursal)
+            managerEntidades = New BEntidades
+            Desactivate_PanelItems()
+            '' Iniciarlizar los componentes graficos
+            formatearGrilla()
+            cargaCombos()
+            '' Aplicar el titulo segun el tipo de documento que se va a cargar
+            Me.Text = acpnlTitulo.ACCaption
+
+            ChkEditDetalles.Enabled = False 'AGREGAMOS ESTO PARA NO MOSTRAR AA MENOS QUE TENGA PERMISO BY FRANK 
+            ChkEditDetalles.Visible = False
+            setInstancia(ACUtilitarios.ACSetInstancia.Deshacer)
+            Me.Icon = Icon.FromHandle(ACPLogistica.My.Resources.Cotizacion_16x16.GetHicon)
+            Me.KeyPreview = True
+            AcFecha.ACDtpFecha_De.Value = DateTime.Now.AddDays(-1 * DateTime.Now.Day + 1)
+        Catch ex As Exception
+            Throw ex
+        End Try
+    End Sub
+#End Region
+    Private Sub CargarPermisos() 'Funcion de Permisos creado by frank  el 10909-2025
+        Dim _validate As ACValidarUsuario
+        _validate = New ACValidarUsuario(GApp.DataConexion, GApp.DataUsuario, ACValidarUsuario.Operacion.ValidarVariosProcesos)
+        For Each item As EProcesos In _validate.ListProcesos
+            Select Case item.PROC_Codigo
+                Case Procesos.getProceso(Procesos.TipoProcesos.ControlLog_IngresarMercaderiaManual)
+
+                    ChkEditDetalles.Visible = True
+                    ChkEditDetalles.Enabled = True
+            End Select
+        Next
+    End Sub
+#Region " Metodos "
+    Private Sub formatearGrilla()
+        Dim index As Integer = 1
+        Try
+            index = 1
+            ACFrameworkC1.ACUtilitarios.ACFormatearGrilla(c1grdDetalle, 1, 1, 7, 1, 0)
+            ACFrameworkC1.ACUtilitarios.ACAgregarColumna(c1grdDetalle, index, "Item", "INGCD_Item", "INGCD_Item", 40, True, False, "System.String") : index += 1
+            ACFrameworkC1.ACUtilitarios.ACAgregarColumna(c1grdDetalle, index, "Codigo", "ARTIC_Codigo", "ARTIC_Codigo", 107, True, False, "System.String") : index += 1
+            ACFrameworkC1.ACUtilitarios.ACAgregarColumna(c1grdDetalle, index, "Descripción", "ARTIC_Descripcion", "ARTIC_Descripcion", 275, True, False, "System.String") : index += 1
+            'R
+            ACFrameworkC1.ACUtilitarios.ACAgregarColumna(c1grdDetalle, index, "Peso", "INGCD_PesoUnitario", "INGCD_PesoUnitario", 70, True, False, "System.String") : index += 1
+
+            ACFrameworkC1.ACUtilitarios.ACAgregarColumna(c1grdDetalle, index, "Unidad", "TIPOS_UnidadMedida", "TIPOS_UnidadMedida", 70, True, False, "System.String") : index += 1
+            ACFrameworkC1.ACUtilitarios.ACAgregarColumna(c1grdDetalle, index, "Cantidad", "INGCD_Cantidad", "INGCD_Cantidad", 95, True, True, "System.Decimal", Parametros.GetParametro(EParametros.TipoParametros.pg_FMondo2d)) : index += 1
+
+            c1grdDetalle.AllowEditing = True
+            c1grdDetalle.AutoResize = True
+            c1grdDetalle.Cols(0).Width = 18
+            c1grdDetalle.Styles.Alternate.BackColor = Color.LightGray
+            c1grdDetalle.Styles.Fixed.TextAlign = TextAlignEnum.CenterCenter
+            c1grdDetalle.Styles.Highlight.BackColor = Color.Gray
+            c1grdDetalle.SelectionMode = SelectionModeEnum.Row
+            c1grdDetalle.AllowResizing = AllowResizingEnum.Columns
+            'c1grdDetalle.ExtendLastCol = True
+
+            index = 1
+            ACFrameworkC1.ACUtilitarios.ACFormatearGrilla(c1grdMTBusqueda, 1, 1, 14, 1, 2)
+            ACFrameworkC1.ACUtilitarios.ACAgregarColumna(c1grdMTBusqueda, index, "Codigo", "ENTID_CodigoProveedor", "ENTID_CodigoProveedor", 150, False, False, "System.String") : index += 1
+            ACFrameworkC1.ACUtilitarios.ACAgregarColumna(c1grdMTBusqueda, index, "Fecha", "INGCO_FechaDocumento", "INGCO_FechaDocumento", 150, True, False, "System.DateTime", Parametros.GetParametro(EParametros.TipoParametros.pg_FormatoFecha)) : index += 1
+            ACFrameworkC1.ACUtilitarios.ACAgregarColumna(c1grdMTBusqueda, index, "Interno", "Codigo", "Codigo", 150, True, False, "System.String") : index += 1
+            ACFrameworkC1.ACUtilitarios.ACAgregarColumna(c1grdMTBusqueda, index, "Documento", "Documento", "Documento", 150, True, False, "System.String") : index += 1
+            ACFrameworkC1.ACUtilitarios.ACAgregarColumna(c1grdMTBusqueda, index, "Doc. Compra", "Compra", "Compra", 150, True, False, "System.String") : index += 1
+            ACFrameworkC1.ACUtilitarios.ACAgregarColumna(c1grdMTBusqueda, index, "Reg. Comp.", "CompraReg", "CompraReg", 150, True, False, "System.Boolean") : index += 1
+            ACFrameworkC1.ACUtilitarios.ACAgregarColumna(c1grdMTBusqueda, index, "Ord. Compra", "ORDEN_Codigo", "ORDEN_Codigo", 150, True, False, "System.String") : index += 1
+            ACFrameworkC1.ACUtilitarios.ACAgregarColumna(c1grdMTBusqueda, index, "Almacen", "ALMAC_Descripcion", "ALMAC_Descripcion", 150, True, False, "System.String") : index += 1
+            ACFrameworkC1.ACUtilitarios.ACAgregarColumna(c1grdMTBusqueda, index, "Codigo", "ENTID_CodigoProveedor", "ENTID_CodigoProveedor", 150, True, False, "System.String") : index += 1
+            ACFrameworkC1.ACUtilitarios.ACAgregarColumna(c1grdMTBusqueda, index, "Proveedor", "ENTID_Proveedor", "ENTID_Proveedor", 150, True, False, "System.String") : index += 1
+            ACFrameworkC1.ACUtilitarios.ACAgregarColumna(c1grdMTBusqueda, index, "Guia Dev.", "Orden", "Orden", 150, True, False, "System.String") : index += 1
+            ACFrameworkC1.ACUtilitarios.ACAgregarColumna(c1grdMTBusqueda, index, "Estado", "INGCO_Estado_Text", "INGCO_Estado_Text", 150, True, False, "System.String") : index += 1
+
+            ACFrameworkC1.ACUtilitarios.ACAgregarColumna(c1grdMTBusqueda, index, "COTCO_Estado", "INGCO_Estado", "INGCO_Estado", 150, False, False, "System.String") : index += 1
+
+
+            c1grdMTBusqueda.AllowEditing = False
+            c1grdMTBusqueda.AllowSorting = AllowSortingEnum.SingleColumn
+            c1grdMTBusqueda.Styles.Alternate.BackColor = Color.LightGray
+            c1grdMTBusqueda.Styles.Fixed.TextAlign = TextAlignEnum.CenterCenter
+            c1grdMTBusqueda.Styles.Highlight.BackColor = Color.Gray
+            c1grdMTBusqueda.SelectionMode = SelectionModeEnum.Row
+
+            Dim tt As C1.Win.C1FlexGrid.CellStyle = c1grdMTBusqueda.Styles.Add("Facturado")
+            tt.BackColor = Color.LightGreen
+            tt.ForeColor = Color.DarkBlue
+            tt.Font = New Font(c1grdMTBusqueda.Font, FontStyle.Regular)
+
+            Dim uu As C1.Win.C1FlexGrid.CellStyle = c1grdMTBusqueda.Styles.Add("Facturar")
+            uu.BackColor = Color.Green
+            uu.ForeColor = Color.White
+            uu.Font = New Font(c1grdMTBusqueda.Font, FontStyle.Regular)
+
+            Dim dd As C1.Win.C1FlexGrid.CellStyle = c1grdMTBusqueda.Styles.Add("Anulado")
+            dd.BackColor = Color.Red
+            dd.ForeColor = Color.White
+            dd.Font = New Font(c1grdMTBusqueda.Font, FontStyle.Bold)
+            c1grdMTBusqueda.DrawMode = C1.Win.C1FlexGrid.DrawModeEnum.OwnerDraw
+
+            c1grdMTBusqueda.SubtotalPosition = SubtotalPositionEnum.AboveData
+            c1grdMTBusqueda.Tree.Column = 2
+
+            Dim s As CellStyle = c1grdMTBusqueda.Styles(CellStyleEnum.Subtotal0)
+            s.BackColor = Color.White
+            s.ForeColor = Color.Red
+            s.Font = New Font(c1grdMTBusqueda.Font, FontStyle.Bold)
+        Catch ex As Exception
+            Throw ex
+        End Try
+    End Sub
+
+    Private Sub cargaCombos()
+        Try
+            bs_tipodocingreso = New BindingSource
+            bs_tipodocingreso.DataSource = Colecciones.TiposDocMerTransito
+            ACFramework.ACUtilitarios.ACCargaCombo(cmbTipoDoc, bs_tipodocingreso, "TIPOS_Descripcion", "TIPOS_Codigo")
+            AddHandler bs_tipodocingreso.CurrentChanged, AddressOf bs_tipodocingreso_CurrentChanged
+            bs_tipodocingreso_CurrentChanged(Nothing, Nothing)
+
+            bs_tipodocumento = New BindingSource : bs_tipodocumento.DataSource = Colecciones.TiposDocMerTransito()
+            AddHandler bs_tipodocumento.CurrentChanged, AddressOf bs_tipodocumento_CurrentChanged
+            ACUtilitarios.ACCargaCombo(cmbDocumento, bs_tipodocumento, "TIPOS_Descripcion", "TIPOS_Codigo")
+
+            ACUtilitarios.ACCargaCombo(ComboBox1, Colecciones.Almacenes, "ALMAC_Descripcion", "ALMAC_Id", GApp.Almacen)
+
+            ComboBox1.Enabled = False
+            Label4.Enabled = False
+        Catch ex As Exception
+            Throw ex
+        End Try
+    End Sub
+
+    Private Sub bs_tipodocingreso_CurrentChanged(ByVal sender As System.Object, ByVal e As System.EventArgs)
+        Try
+            If CType(bs_tipodocingreso.Current, ETipos).TIPOS_Codigo = ETipos.getTipoComprobante(ETipos.TipoComprobanteVenta.RegistroMercaderia) Then
+                txtSerie.Enabled = False
+                actxnNumero.Enabled = False
+            Else
+                txtSerie.Enabled = True
+                actxnNumero.Enabled = True
+            End If
+        Catch ex As Exception
+            ACControles.ACDialogos.ACMostrarMensajeError("Error: " & Me.Text, "Ocurrio un error en el proceso Cambiar Registro", ex)
+        End Try
+    End Sub
+
+    Private Sub bs_tipodocumento_CurrentChanged(ByVal sender As System.Object, ByVal e As System.EventArgs)
+        Try
+            If CType(bs_tipodocumento.Current, ETipos).TIPOS_Codigo.Equals(ETipos.getTipoComprobante(ETipos.TipoComprobanteVenta.Ticket)) Then
+                txtDCSerie.MaxLength = 5 : txtDCNumero.MaxLength = 8
+            Else
+                If Not txtDCSerie.Text.Equals("") Then
+                    If txtDCSerie.MaxLength > 5 Then txtSerie.Text = txtDCSerie.Text.Substring(0, 3)
+                End If
+                If txtDCNumero.Text.Length > 8 Then txtDCNumero.Text = txtDCNumero.Text.Substring(0, 7)
+                txtDCSerie.MaxLength = 5 : txtDCNumero.MaxLength = 7
+            End If
+        Catch ex As Exception
+            ACControles.ACDialogos.ACMostrarMensajeError(String.Format("Error: {0}", Me.Text), "Ocurrio un error en el proceso Cambiar Registro", ex)
+        End Try
+    End Sub
+
+    Private Sub setInstancia(ByVal _opcion As ACUtilitarios.ACSetInstancia)
+        Select Case _opcion
+            Case ACUtilitarios.ACSetInstancia.Nuevo
+                ACUtilitarios.ACLimpiaVar(pnlCabecera)
+                ACUtilitarios.ACLimpiaVar(pnlItem)
+                ACUtilitarios.ACLimpiaVar(grpDocReferencia)
+                ACUtilitarios.ACSetControl(pnlCabecera, False, ACUtilitarios.TipoPropiedad.ACReadOnly)
+                ACUtilitarios.ACSetControl(grpDocReferencia, False, ACUtilitarios.TipoPropiedad.ACReadOnly)
+                actsbtnPrevisualizar.Visible = False
+                GroupBox3.Enabled = True
+                actxaProvRuc.ACAyuda.Enabled = True
+                actxaProvRuc.ACActivarAyuda = True
+                actxaProvRazonSocial.ACAyuda.Enabled = True
+                actxaProvRazonSocial.ACActivarAyuda = True
+                dtpFecEmision.Enabled = True
+                pnlItem.Enabled = True
+                btnClean.Enabled = True
+                btnNuevoCliente.Enabled = True
+                c1grdDetalle.AllowEditing = True
+                acTool.ACBtnAnularVisible = False
+                'pnlItem.Enabled = False
+                tabMantenimiento.SelectedTab = tabDatos
+                RemoveHandler c1grdDetalle.KeyDown, AddressOf c1grdDetalle_KeyDown
+                AddHandler c1grdDetalle.KeyDown, AddressOf c1grdDetalle_KeyDown
+            Case ACUtilitarios.ACSetInstancia.Modificado
+                'pnlItem.Enabled = True
+                c1grdDetalle.Focus()
+                actsbtnPrevisualizar.Visible = True
+                tabMantenimiento.SelectedTab = tabDatos
+                acTool.ACBtnAnularVisible = False
+                tabMantenimiento.SelectedTab = tabDatos
+                actsbtnPrevisualizar.Visible = False
+                ACUtilitarios.ACSetControl(pnlCabecera, False, ACUtilitarios.TipoPropiedad.ACReadOnly)
+                ACUtilitarios.ACSetControl(grpDocReferencia, False, ACUtilitarios.TipoPropiedad.ACReadOnly)
+                RemoveHandler c1grdDetalle.KeyDown, AddressOf c1grdDetalle_KeyDown
+                AddHandler c1grdDetalle.KeyDown, AddressOf c1grdDetalle_KeyDown
+            Case ACUtilitarios.ACSetInstancia.Guardar
+                txtBusqueda.Focus()
+                actsbtnPrevisualizar.Visible = True
+                tabMantenimiento.SelectedTab = tabDatos
+                acTool.ACBtnAnularVisible = False
+            Case ACUtilitarios.ACSetInstancia.Deshacer
+                actsbtnPrevisualizar.Visible = True
+                acTool.ACBtnBuscarVisible = False
+                acTool.ACBtnAnularVisible = False
+                acTool.ACBtnModificarVisible = True
+                tabMantenimiento.SelectedTab = tabBusqueda
+                actsbtnPrevisualizar.Visible = True
+                acpnlTitulo.Active = False
+                RemoveHandler c1grdDetalle.KeyDown, AddressOf c1grdDetalle_KeyDown
+            Case ACUtilitarios.ACSetInstancia.Previsualizar
+                ACUtilitarios.ACSetControl(pnlCabecera, True, ACUtilitarios.TipoPropiedad.ACReadOnly)
+                ACUtilitarios.ACSetControl(grpDocReferencia, True, ACUtilitarios.TipoPropiedad.ACReadOnly)
+                GroupBox3.Enabled = False
+                actxaProvRuc.ACAyuda.Enabled = False
+                actxaProvRuc.ACActivarAyuda = False
+                actxaProvRazonSocial.ACAyuda.Enabled = False
+                actxaProvRazonSocial.ACActivarAyuda = False
+                dtpFecEmision.Enabled = False
+                pnlItem.Enabled = False
+                btnClean.Enabled = False
+                btnNuevoCliente.Enabled = False
+                c1grdDetalle.AllowEditing = False
+                'pnlItem.Enabled = False
+                acTool.setInstancia(ACControles.ACToolBarMantHorizontalNew.TipoInstancia.Nuevo)
+                acTool.ACBtnGrabarVisible = False
+                'acTool.ACBtnRehusarVisible = True
+                actsbtnPrevisualizar.Visible = False
+                If managerGenerarRegMercTransito.ABAS_IngresosCompra.INGCO_Estado = EABAS_IngresosCompra.getEstado(EABAS_IngresosCompra.Estado.Confirmado) Then
+                    acTool.ACBtnAnularVisible = False
+                ElseIf managerGenerarRegMercTransito.ABAS_IngresosCompra.INGCO_Estado = EABAS_IngresosCompra.getEstado(EABAS_IngresosCompra.Estado.Anulado) Then
+                    acTool.ACBtnAnularVisible = False
+                Else
+                    acTool.ACBtnAnularVisible = True
+                End If
+
+                tabMantenimiento.SelectedTab = tabDatos
+        End Select
+    End Sub
+
+    ''' <summary>
+    ''' Ejecutar la busqueda de una cadena en la tabla Neumaticos
+    ''' </summary>
+    ''' <param name="x_cadena">Cadena objetivo</param>
+    ''' <returns></returns>
+    Private Function busquedaDatos(ByVal x_cadena As String) As Boolean
+        Try
+            'If txtBusqueda.ACEstadoAutoAyuda Then
+            If managerGenerarRegMercTransito.Consulta(x_cadena, getMTCampo(), chkMTTodos.Checked, AcFecha.ACDtpFecha_De.Value.Date, AcFecha.ACDtpFecha_A.Value.Date.AddDays(1)) Then
+                acTool.ACBtnEliminarEnabled = True
+                acTool.ACBtnModificarEnabled = True
+            Else
+                acTool.ACBtnEliminarEnabled = False
+                acTool.ACBtnModificarEnabled = False
+            End If
+            MTCargarDatos()
+            'End If
+            Return acTool.ACBtnEliminarEnabled
+        Catch ex As Exception
+            ACControles.ACDialogos.ACMostrarMensajeError(String.Format("Error: {0}", Convert.ToString(Text)), "No se puede cargar la ayuda de los conductores", ex)
+        End Try
+        Return False
+    End Function
+
+    Private Function getMTCampo() As Short
+        Try
+            If (rbtnMTProveedor.Checked) Then
+                Return 0
+            ElseIf rbtnOCOrdeCompra.Checked Then
+                Return 1
+            ElseIf rbtnDocCompra.Checked Then
+                Return 2
+            ElseIf rbtnDocIngreso.Checked Then
+                Return 3
+            Else
+                Return 0
+            End If
+        Catch ex As Exception
+            Throw ex
+        End Try
+    End Function
+
+    ''' <summary>
+    ''' Cargar los datos en el control Visual C1FlexGrid
+    ''' </summary>
+    Private Sub MTCargarDatos()
+        Try
+            bs_abas_ingresocompras = New BindingSource()
+            bs_abas_ingresocompras.DataSource = managerGenerarRegMercTransito.BABAS_IngresosCompra.ListABAS_IngresosCompra
+            c1grdMTBusqueda.DataSource = bs_abas_ingresocompras
+            bnavBusqueda.BindingSource = bs_abas_ingresocompras
+            AddHandler bs_abas_ingresocompras.CurrentChanged, AddressOf bs_abas_ingresocompras_CurrentChanged
+            bs_abas_ingresocompras_CurrentChanged(Nothing, Nothing)
+            chkAgrupar_CheckedChanged(Nothing, Nothing)
+        Catch ex As Exception
+            Throw ex
+        End Try
+    End Sub
+
+    Private Sub OrdenarPedidos(ByVal x_columna As String)
+        Dim _ordenador As New ACOrdenador(Of EABAS_IngresosCompra)
+        Try
+            If m_order = 2 Then x_columna += " DESC"
+            _ordenador.ACOrdenamiento = x_columna
+            CType(bs_abas_ingresocompras.DataSource, List(Of EABAS_IngresosCompra)).Sort(_ordenador)
+            c1grdMTBusqueda.Refresh()
+            m_order = IIf(m_order = 1, 2, 1)
+        Catch ex As Exception
+            Throw ex
+        End Try
+    End Sub
+
+    Private Sub AyudaEntidad(ByVal x_cadenas As String, ByVal x_campo As String, ByVal x_opcion As EEntidades.TipoEntidad)
+        Try
+            Me.KeyPreview = False
+            Dim _where As New Hashtable
+            _where.Add(x_campo, New ACWhere(x_cadenas, ACWhere.TipoWhere._Like))
+            If managerEntidades.Ayuda(_where, x_opcion) Then
+                Dim Ayuda As New ACControlesC1.ACAyudaFlex("Buscar Entidad", managerEntidades.DTEntidades, False)
+                If Ayuda.ShowDialog() = System.Windows.Forms.DialogResult.OK Then
+                    Select Case x_opcion
+                        Case EEntidades.TipoEntidad.ProveedoresLogistica
+                            '' Cargar datos del cliente
+                            managerGenerarRegMercTransito.ABAS_IngresosCompra.ENTID_CodigoProveedor = Ayuda.Respuesta.Rows(0)("Codigo")
+                            If managerEntidades.Cargar(managerGenerarRegMercTransito.ABAS_IngresosCompra.ENTID_CodigoProveedor, EEntidades.TipoInicializacion.Proveedor) Then
+                                'actxaProvCodigo.Text = managerEntidades.Entidades.ENTID_Codigo
+                                actxaProvRazonSocial.Text = managerEntidades.Entidades.ENTID_RazonSocial
+                                actxaProvRuc.Text = managerEntidades.Entidades.ENTID_NroDocumento
+                                '' Cargar datos adicionales del proveedor
+
+                            End If
+
+                            '' Cargar datos adicionales del proveedor
+                            pnlItem.Enabled = True
+                            Label2.Focus()
+                            Me.KeyPreview = True
+                        Case EEntidades.TipoEntidad.Vendedores
+                            Dim x_entid_codigo As String = Ayuda.Respuesta.Rows(0)("Codigo")
+                    End Select
+                End If
+            Else
+                ACControles.ACDialogos.ACMostrarMensajeInformacion(String.Format("Información: {0}", Me.Text), "No se puede cargar la ayuda, posiblemente no hay datos que mostrar por que no hay coincidencias en la busqueda")
+            End If
+        Catch ex As Exception
+            Throw ex
+        End Try
+    End Sub
+
+    Private Sub NuevoProveedor(ByVal x_entid_nrodocumento As String)
+        Try
+            Dim frmEntidad As New MEntidad(MEntidad.Inicio.NuevaEntidad, ACEVentas.EEntidades.TipoEntidad.Clientes)
+            frmEntidad.StartPosition = FormStartPosition.CenterScreen
+            If x_entid_nrodocumento.Length > 0 Then
+                frmEntidad.EEntidad.ENTID_NroDocumento = x_entid_nrodocumento
+                frmEntidad.lblNombres.Focus()
+            End If
+            If frmEntidad.ShowDialog() = System.Windows.Forms.DialogResult.OK Then
+                m_eentidades = frmEntidad.EEntidad
+                managerGenerarRegMercTransito.ABAS_IngresosCompra.ENTID_CodigoProveedor = m_eentidades.ENTID_Codigo
+
+                Dim l_Tipos As New List(Of ETipos)(Colecciones.GetTipos(m_eentidades.Cliente.TIPOS_CodTipoPercepcion))
+                Dim pPercepcion As Double
+                If l_Tipos.Count > 0 Then
+                    pPercepcion = l_Tipos(0).TIPOS_Numero
+                End If
+                m_eentidades.Cliente.Percepcion = pPercepcion
+                managerEntidades.Entidades = m_eentidades
+                managerEntidades.Cliente = m_eentidades.Cliente
+                actxaProvRazonSocial.Text = managerEntidades.Entidades.ENTID_RazonSocial
+                actxaProvRuc.Text = managerEntidades.Entidades.ENTID_NroDocumento
+                'cargarProveedor(managerEntidades.Cliente.ENTID_CodigoVendedor)
+                'cargarProveedor(IIf(IsNothing(managerEntidades.Cliente), Parametros.GetParametro(EParametros.TipoParametros.pg_VendedorDefa), managerEntidades.Cliente.ENTID_CodigoVendedor))
+                'setRolProveedor(IIf(getFilterRol(), Seteo.Activar, Seteo.Desactivar))
+                pnlItem.Enabled = True
+                'calcular()
+            End If
+        Catch ex As Exception
+            Throw ex
+        End Try
+    End Sub
+
+    Private Sub AsignarBinding()
+        Try
+            m_listBindHelper = New List(Of ACBindHelper)()
+
+            If managerGenerarRegMercTransito.ABAS_IngresosCompra.INGCO_FechaIngreso.Year < 1700 Then managerGenerarRegMercTransito.ABAS_IngresosCompra.INGCO_FechaIngreso = DateTime.Now
+            m_listBindHelper.Add(ACBindHelper.ACBind(dtpFecEmision, "Value", managerGenerarRegMercTransito.ABAS_IngresosCompra, "INGCO_FechaIngreso"))
+            If managerGenerarRegMercTransito.ABAS_IngresosCompra.INGCO_FechaDocumento.Year < 1700 Then managerGenerarRegMercTransito.ABAS_IngresosCompra.INGCO_FechaDocumento = DateTime.Now
+            m_listBindHelper.Add(ACBindHelper.ACBind(dtpfechadoc, "Value", managerGenerarRegMercTransito.ABAS_IngresosCompra, "INGCO_FechaDocumento"))
+
+            m_listBindHelper.Add(ACBindHelper.ACBind(actxaProvRuc, "Text", managerGenerarRegMercTransito.ABAS_IngresosCompra, "ENTID_CodigoProveedor"))
+            m_listBindHelper.Add(ACBindHelper.ACBind(cmbTipoDoc, "SelectedValue", managerGenerarRegMercTransito.ABAS_IngresosCompra, "TIPOS_CodTipoDocumento"))
+            m_listBindHelper.Add(ACBindHelper.ACBind(txtSerie, "Text", managerGenerarRegMercTransito.ABAS_IngresosCompra, "INGCO_Serie"))
+            m_listBindHelper.Add(ACBindHelper.ACBind(actxnNumero, "Text", managerGenerarRegMercTransito.ABAS_IngresosCompra, "INGCO_Numero"))
+            'GUIAS DE COMPRAS 
+            'm_listBindHelper.Add(ACBindHelper.ACBind(TxtGCompraNumero, "Text", managerGenerarRegMercTransito.ABAS_IngresosCompra, "INGCO_GUIAR_Codigo"))
+            ''   m_listBindHelper.Add(ACBindHelper.ACBind(actxnNumero, "Text", managerGenerarRegMercTransito.ABAS_IngresosCompra, "INGCO_Numero"))
+
+            'm_listBindHelper.Add(ACBindHelper.ACBind(actxCotizacionProveedor, "Text", managerGenerarRegMercTransito.ABAS_DocsCompra, "DOCCO_CotizacionProveedor"))
+
+            If managerGenerarRegMercTransito.ABAS_IngresosCompra.INGCO_PesoTotal > 0 Then
+                m_listBindHelper.Add(ACBindHelper.ACBind(actxnPesoTotal, "Text", managerGenerarRegMercTransito.ABAS_IngresosCompra, "INGCO_PesoTotal"))
+            Else
+                _peso = 0
+                _pesoTotal = 0
+                For Each Item As EABAS_IngresosCompraDetalle In managerGenerarRegMercTransito.ABAS_IngresosCompra.ListABAS_IngresosCompraDetalle
+                    Dim x_numero As Double = managerGenerarGuias.getNumeropeso(Item.ARTIC_Codigo)
+                    _peso = (x_numero).ToString()
+
+                    _pesoTotal += _peso * Item.INGCD_Cantidad
+                Next
+                managerGenerarRegMercTransito.ABAS_IngresosCompra.INGCO_PesoTotal = _pesoTotal
+                m_listBindHelper.Add(ACBindHelper.ACBind(actxnPesoTotal, "Text", managerGenerarRegMercTransito.ABAS_IngresosCompra, "INGCO_PesoTotal"))
+            End If
+
+            '-R
+            'm_listBindHelper.Add(ACBindHelper.ACBind(actxnPesoTotal, "Text", managerGenerarRegMercTransito.ABAS_IngresosCompra, "INGCO_PesoTotal"))
+        Catch ex As Exception
+            Throw ex
+        End Try
+    End Sub
+
+    Private Function validar(ByRef m_msg As String)
+        Try
+            '' Validar al Cliente
+            Dim _msg As String = ""
+            If Not ACUtilitarios.ACDatosOk(pnlCabecera, _msg) Then
+                m_msg &= _msg
+                Return False
+            End If
+            If Not CType(cmbTipoDoc.SelectedItem, ETipos).TIPOS_Codigo = ETipos.getTipoComprobante(ETipos.TipoComprobanteVenta.NotaCredito) Then
+                If IsNothing(actxaOrdenCompra.Text) Then
+                    m_msg &= String.Format("- Debe Adjuntar una ORDEN DE COMPRA", vbNewLine)
+                End If
+            End If
+
+
+            '' Validar Detalle
+            ValidarDetalle(m_msg)
+            '' Verificar si hay pedidos
+            If Not managerGenerarRegMercTransito.ABAS_IngresosCompra.ListABAS_IngresosCompraDetalle.Count > 0 Then
+                m_msg &= String.Format("- No se ha ingresado ningun articulo{0}", vbNewLine)
+            End If
+            Return Not (m_msg.Length > 0)
+        Catch ex As Exception
+            Throw ex
+        End Try
+    End Function
+
+    Private Function ValidarDetalle(ByRef m_msg As String) As Boolean
+        Try
+            Dim _msg As String = ""
+            Dim _cantidad As Double = 0
+            bs_detabas_ingresoscompra.ResetBindings(False)
+            '' Valida que la cantidad y el precio es superior a 0
+            For Each Item As EABAS_IngresosCompraDetalle In managerGenerarRegMercTransito.ABAS_IngresosCompra.ListABAS_IngresosCompraDetalle
+                _cantidad += Item.INGCD_Cantidad
+                If Not Item.INGCD_Cantidad > 0 Then
+                    _msg &= String.Format("- El Producto {0} tiene como cantidad {1}, no es aceptable.{2}", Item.ARTIC_Descripcion, Item.INGCD_Cantidad, vbNewLine)
+                End If
+            Next
+            If Not _cantidad > 0 Then
+                m_msg &= _msg
+            End If
+
+            Return Not (m_msg.Length > 0)
+        Catch ex As Exception
+            Throw ex
+        End Try
+    End Function
+
+    Private Function grabarIngresoMercaderia(ByRef m_msg As String) As Boolean
+        Try
+            Dim x_guiar_codigo As String = ""
+            If validar(m_msg) Then
+                If ACControles.ACDialogos.ACMostrarMensajePregunta(String.Format("Grabar Ingreso de Mercaderia: {0}", Me.Text) _
+                 , "Desea grabar el Ingreso de Mercaderia?" _
+                 , ACControles.ACDialogos.LabelBotom.Si_No) = DialogResult.Yes Then
+                    '' Obtener datos
+                    managerGenerarRegMercTransito.ABAS_IngresosCompra.ALMAC_Id = GApp.Almacen
+                    '' Obtener el codigo generando con el tipo de documento y la serie
+                    'm_eabas_ingresoscompra.INGCO_Serie = txtSerie.Text
+                    managerGenerarRegMercTransito.ABAS_IngresosCompra.INGCO_PesoTotal = actxnPesoTotal.Text
+                    'm_eabas_ingresoscompra.INGCO_Numero = actxnNumero.Text
+                    managerGenerarRegMercTransito.ABAS_IngresosCompra.TIPOS_CodTipoDocumento = cmbTipoDoc.SelectedValue
+
+
+
+
+                    'cONCATENAOS TODO DESPUES 
+                    managerGenerarRegMercTransito.ABAS_IngresosCompra.INGCO_GUIAR_Codigo = String.Format("{0}{1}{2}", "09", TxtGCompraSerie.Text.Trim().PadLeft(4, "0"), TxtGCompraNumero.Text.Trim().PadLeft(7, "0"))
+
+                    Dim _etipos As ETipos = CType(cmbDocumento.SelectedItem, ETipos)
+                    Dim _coddoccompra As String
+                    If _etipos.TIPOS_LSerie > 0 And _etipos.TIPOS_LNumero > 0 Then
+                        _coddoccompra = String.Format("{0}{1}{2}", _etipos.TIPOS_Codigo.Substring(3, 2), txtDCSerie.Text.Trim().PadLeft(5, "0"), txtDCNumero.Text.Trim().PadLeft(8, "0"))
+                    Else
+                        _coddoccompra = String.Format("{0}{1}{2}", _etipos.TIPOS_Codigo.Substring(3, 2), txtDCSerie.Text.Trim().PadLeft(5, "0"), txtDCNumero.Text.Trim().PadLeft(8, "0"))
+                    End If
+
+                    managerGenerarRegMercTransito.ABAS_IngresosCompra.DOCCO_Codigo = _coddoccompra
+                    'm_eabas_ingresoscompra.INGCO_Interno = managerABAS_IngresosCompra.getCodCorrelativo(m_eabas_ingresoscompra.ORDCO_Codigo)
+                    If (txtOCNumero.TextLength >= 1 And txtOCSerie.TextLength >= 1) Then
+                        managerGenerarRegMercTransito.ABAS_IngresosCompra.ORDCO_Codigo = String.Format("{0}{1}{2}", "09", txtOCSerie.Text.Trim().PadLeft(4, "0"), txtOCNumero.Text.Trim().PadLeft(7, "0"))
+                    End If
+
+                    managerGenerarRegMercTransito.ABAS_IngresosCompra.ORDEN_Codigo = actxaOrdenCompra.Text
+
+                    '' Definir el Estado
+                    managerGenerarRegMercTransito.ABAS_IngresosCompra.INGCO_Estado = EABAS_IngresosCompra.getEstado(EABAS_IngresosCompra.Estado.Ingresado)
+                    '' Grabar el pedido
+                    Return managerGenerarRegMercTransito.GrabaIngresoCompra(GApp.Usuario, m_msg)
+                End If
+            Else
+
+            End If
+            Return False
+        Catch ex As Exception
+            Throw ex
+        End Try
+    End Function
+
+    Private Function grabarIngresoMercaderiaConfirmada(ByRef m_msg As String) As Boolean '''20230630 _M
+        Try
+            If validar(m_msg) Then
+                If ACControles.ACDialogos.ACMostrarMensajePregunta(String.Format("Grabar Ingreso de Mercaderia Confirmada: {0}", Me.Text) _
+                 , "El ingreso esta CONFIRMADO, Desea grabar el Ingreso de Mercaderia?" _
+                 , ACControles.ACDialogos.LabelBotom.Si_No) = DialogResult.Yes Then
+                    '' Obtener datos
+                    managerGenerarRegMercTransito.ABAS_IngresosCompra.ALMAC_Id = GApp.Almacen
+                    '' Obtener el codigo generando con el tipo de documento y la serie
+                    'm_eabas_ingresoscompra.INGCO_Serie = txtSerie.Text
+                    managerGenerarRegMercTransito.ABAS_IngresosCompra.INGCO_PesoTotal = actxnPesoTotal.Text
+                    'm_eabas_ingresoscompra.INGCO_Numero = actxnNumero.Text
+                    managerGenerarRegMercTransito.ABAS_IngresosCompra.TIPOS_CodTipoDocumento = cmbTipoDoc.SelectedValue
+
+                    Dim _etipos As ETipos = CType(cmbDocumento.SelectedItem, ETipos)
+                    Dim _coddoccompra As String
+                    If _etipos.TIPOS_LSerie > 0 And _etipos.TIPOS_LNumero > 0 Then
+                        _coddoccompra = String.Format("{0}{1}{2}", _etipos.TIPOS_Codigo.Substring(3, 2), txtDCSerie.Text.Trim().PadLeft(5, "0"), txtDCNumero.Text.Trim().PadLeft(8, "0"))
+                    Else
+                        _coddoccompra = String.Format("{0}{1}{2}", _etipos.TIPOS_Codigo.Substring(3, 2), txtDCSerie.Text.Trim().PadLeft(5, "0"), txtDCNumero.Text.Trim().PadLeft(8, "0"))
+                    End If
+
+                    managerGenerarRegMercTransito.ABAS_IngresosCompra.DOCCO_Codigo = _coddoccompra
+                    'm_eabas_ingresoscompra.INGCO_Interno = managerABAS_IngresosCompra.getCodCorrelativo(m_eabas_ingresoscompra.ORDCO_Codigo)
+                    If (txtOCNumero.TextLength >= 1 And txtOCSerie.TextLength >= 1) Then
+                        managerGenerarRegMercTransito.ABAS_IngresosCompra.ORDCO_Codigo = String.Format("{0}{1}{2}", "09", txtOCSerie.Text.Trim().PadLeft(3, "0"), txtOCNumero.Text.Trim().PadLeft(7, "0"))
+                    End If
+
+
+
+                    '' Definir el Estado
+                    managerGenerarRegMercTransito.ABAS_IngresosCompra.INGCO_Estado = EABAS_IngresosCompra.getEstado(EABAS_IngresosCompra.Estado.Confirmado)
+                    '' Grabar el pedido
+                    Return managerGenerarRegMercTransito.GrabaIngresoCompraConfirmada(GApp.Usuario, m_msg)
+                End If
+            Else
+
+            End If
+            Return False
+        Catch ex As Exception
+            Throw ex
+        End Try
+    End Function
+
+    Private Function CargarDatos() As Boolean
+        Try
+            If m_tconsulta = BGenerarRegMercTransito.TConsulta.Compras Then
+                managerGenerarRegMercTransito.ABAS_DocsCompra = New BABAS_DocsCompra
+                managerGenerarRegMercTransito.ABAS_DocsCompra.ABAS_DocsCompra = m_frmconsultas.ABAS_DocsCompra
+                actxaOrdenCompra.Text = m_frmconsultas.ABAS_DocsCompra.DOCCO_Codigo
+
+                cmbDocumento.SelectedValue = managerGenerarRegMercTransito.ABAS_DocsCompra.ABAS_DocsCompra.TIPOS_CodTipoDocumento
+                txtDCSerie.Text = managerGenerarRegMercTransito.ABAS_DocsCompra.ABAS_DocsCompra.DOCCO_Serie
+                txtDCNumero.Text = managerGenerarRegMercTransito.ABAS_DocsCompra.ABAS_DocsCompra.DOCCO_Numero
+                'txtOCNumero.Text = m_frmconsultas.ABAS_DocsCompra.ORDCO_Numero
+                'txtOCSerie.Text = m_frmconsultas.ABAS_DocsCompra.ORDCO_Serie
+
+            ElseIf m_tconsulta = BGenerarRegMercTransito.TConsulta.Ordenes Then
+                managerGenerarRegMercTransito.ABAS_OrdenesCompra = New BABAS_OrdenesCompra
+                managerGenerarRegMercTransito.ABAS_OrdenesCompra.ABAS_OrdenesCompra = m_frmconsultas.ABAS_OrdenesCompra
+                actxaOrdenCompra.Text = m_frmconsultas.ABAS_OrdenesCompra.ORDCO_Codigo
+
+                cmbDocumento.SelectedIndex = -1
+                txtDCSerie.Clear()
+                txtDCNumero.Clear()
+
+                ' txtOCNumero.Text = managerGenerarRegMercTransito.ABAS_OrdenesCompra.ABAS_OrdenesCompra.ORDCO_Numero
+                ' txtOCSerie.Text = managerGenerarRegMercTransito.ABAS_OrdenesCompra.ABAS_OrdenesCompra.ORDCO_Serie
+            End If
+
+            Return managerGenerarRegMercTransito.ConvertToIngreso(m_tconsulta)
+        Catch ex As Exception
+            Throw ex
+        End Try
+    End Function
+
+    Private Sub setProducto(ByVal x_opcion As Boolean)
+        Try
+            If x_opcion Then
+                If managerConsultaArticulos.cargarProducto(m_earticulos.ARTIC_Codigo) Then
+                    m_earticulos = managerConsultaArticulos.Articulos
+                    actxaProdCodigo.Text = m_earticulos.ARTIC_Codigo
+                    txtProdDescripcion.Text = m_earticulos.ARTIC_Descripcion
+                    txtUnidad.Text = m_earticulos.TIPOS_UnidadMedida
+                    txtProdDescripcion.Focus()
+                End If
+            Else
+                actxaProdCodigo.Clear()
+                txtProdDescripcion.Clear()
+                'R
+                actxnCantidad.Text = "0.00"
+            End If
+        Catch ex As Exception
+            Throw ex
+        End Try
+    End Sub
+    '_R
+    Private Sub calcular()
+        Try
+            bs_detabas_ingresoscompra.ResetBindings(False)
+            Dim _importeTotal As Double = 0
+            _pesoTotal = 0
+            Dim _igv As Double = IIf(Parametros.GetParametro(EParametros.TipoParametros.PIGV).ToString() = "", 0, Parametros.GetParametro(EParametros.TipoParametros.PIGV))
+            If _igv = 0 Then
+                acTool.ACBtnGrabarEnabled = False
+                Throw New Exception("El I.G.V. No puede ser 0, por favor revise el parametro y coloque el valor adecuado")
+            Else
+                acTool.ACBtnGrabarEnabled = True
+            End If
+
+            For Each Item As EABAS_IngresosCompraDetalle In managerGenerarRegMercTransito.ABAS_IngresosCompra.ListABAS_IngresosCompraDetalle 'm_eabas_docscompra.ListEABAS_DocsCompraDetalle
+
+                PesoUnitario.Text = Item.INGCD_PesoUnitario
+                _pesoTotal += PesoUnitario.Text * Item.INGCD_Cantidad
+            Next
+
+            actxnPesoTotal.Text = _pesoTotal.ToString()
+            PesoUnitario.Clear()
+
+            bs_detabas_ingresoscompra.ResetBindings(False)
+        Catch ex As Exception
+            Throw ex
+        End Try
+    End Sub
+    'Private Sub calcular()
+    '   Try
+
+    '   Catch ex As Exception
+    '      Throw ex
+    '   End Try
+    'End Sub
+
+    Private Function addDetalle() As Boolean
+        Try
+            'Dim _filter As New ACFiltrador(Of EABAS_IngresosCompraDetalle)
+            '_filter.ACFiltro = String.Format("ARTIC_Codigo={0}", m_earticulos.ARTIC_Codigo)
+            '_filter.ACFiltrar(managerGenerarRegMercTransito.ABAS_IngresosCompra.ListABAS_IngresosCompraDetalle)
+            'If _filter.ACListaFiltrada.Count > 0 Then
+            '   If ACControles.ACDialogos.ACMostrarMensajePregunta(String.Format("Registro Duplicado: {0}", Me.Text) _
+            '    , "El producto ya fue ingresado, deseas actualizar la cantidad ingresada?" _
+            '    , ACControles.ACDialogos.LabelBotom.Si_No) = DialogResult.Yes Then
+            '      _filter.ACListaFiltrada(0).INGCD_Cantidad = actxnCantidad.Text
+            '      bs_detabas_ingresoscompra.ResetBindings(False)
+            '      calcular()
+            '      Return True
+            '   End If
+            'Else
+            Dim _detDocCompraDetalle As New EABAS_IngresosCompraDetalle
+            _detDocCompraDetalle.Articulo = m_earticulos
+            _detDocCompraDetalle.ARTIC_Codigo = m_earticulos.ARTIC_Codigo
+            _detDocCompraDetalle.ARTIC_Descripcion = m_earticulos.ARTIC_Descripcion
+            _detDocCompraDetalle.TIPOS_UnidadMedida = m_earticulos.TIPOS_UndMedCorta
+            _detDocCompraDetalle.INGCD_Cantidad = actxnCantidad.Text
+            _detDocCompraDetalle.TIPOS_UnidadMedida = txtUnidad.Text
+
+            'R
+            _detDocCompraDetalle.INGCD_PesoUnitario = PesoUnitario.Text
+
+
+            '' Actualizar contenido
+            managerGenerarRegMercTransito.ABAS_IngresosCompra.ListABAS_IngresosCompraDetalle.Add(_detDocCompraDetalle)
+            bs_detabas_ingresoscompra.ResetBindings(False)
+            calcular()
+            Return True
+            'End If
+        Catch ex As Exception
+            Throw ex
+        End Try
+    End Function
+
+    Private Sub cargar(ByVal x_codigo As Long, ByVal x_almac_id As Short)
+        Try
+            If managerGenerarRegMercTransito.CargarIngreso(x_codigo, x_almac_id, True) Then
+                AsignarBinding()
+                CargarProveedor()
+                bs_detabas_ingresoscompra = New BindingSource
+                bs_detabas_ingresoscompra.DataSource = managerGenerarRegMercTransito.ABAS_IngresosCompra.ListABAS_IngresosCompraDetalle
+                c1grdDetalle.DataSource = bs_detabas_ingresoscompra
+                bnavProductos.BindingSource = bs_detabas_ingresoscompra
+                tabMantenimiento.SelectedTab = tabDatos
+                actxaOrdenCompra.Text = managerGenerarRegMercTransito.ABAS_IngresosCompra.ORDEN_Codigo 'ORDCO_Codigo
+                txtCodigo.Text = managerGenerarRegMercTransito.ABAS_IngresosCompra.INGCO_Id.ToString("00000")
+                cmbDocumento.SelectedValue = ETipos.getCodTipo(ETipos.MyTipos.TipoDocComprobante) + managerGenerarRegMercTransito.ABAS_IngresosCompra.DOCCO_Codigo.Substring(0, 2)
+
+
+                'TxtGCompraNumero.Text = String.Format("{0}", managerGenerarRegMercTransito.ABAS_IngresosCompra.INGCO_GUIAR_Codigo.Substring(6, 7))
+
+                'TxtGCompraSerie.Text = String.Format("{0}", managerGenerarRegMercTransito.ABAS_IngresosCompra.INGCO_GUIAR_Codigo.Substring(2, 4))
+
+
+                Dim codigo As String = managerGenerarRegMercTransito.ABAS_IngresosCompra.INGCO_GUIAR_Codigo
+
+                If Not String.IsNullOrEmpty(codigo) AndAlso codigo.Length >= 9 Then
+                    TxtGCompraNumero.Text = codigo.Substring(6, 3)  ' O 7 si realmente necesitas 7 caracteres
+                    TxtGCompraSerie.Text = codigo.Substring(2, 4)
+                Else
+                    TxtGCompraNumero.Text = ""
+                    TxtGCompraSerie.Text = ""
+                End If
+
+
+
+                If (managerGenerarRegMercTransito.ABAS_IngresosCompra.DOCCO_Codigo.Length > 12) Then
+                    txtDCSerie.Text = managerGenerarRegMercTransito.ABAS_IngresosCompra.DOCCO_Codigo.Substring(2, 5)
+                    txtDCNumero.Text = managerGenerarRegMercTransito.ABAS_IngresosCompra.DOCCO_Codigo.Substring(7, 8)
+                Else
+                    txtDCSerie.Text = managerGenerarRegMercTransito.ABAS_IngresosCompra.DOCCO_Codigo.Substring(2, 3)
+                    txtDCNumero.Text = managerGenerarRegMercTransito.ABAS_IngresosCompra.DOCCO_Codigo.Substring(5, 7)
+                End If
+
+                If Not IsNothing(managerGenerarRegMercTransito.ABAS_IngresosCompra.ORDCO_Codigo) Then
+                    If Len(managerGenerarRegMercTransito.ABAS_IngresosCompra.ORDCO_Codigo) = 12 Then
+                        txtOCSerie.Text = managerGenerarRegMercTransito.ABAS_IngresosCompra.ORDCO_Codigo.Substring(2, 3)
+                        txtOCNumero.Text = managerGenerarRegMercTransito.ABAS_IngresosCompra.ORDCO_Codigo.Substring(5, 7)
+                    Else
+                        txtOCSerie.Text = managerGenerarRegMercTransito.ABAS_IngresosCompra.ORDCO_Codigo.Substring(2, 4)
+                        txtOCNumero.Text = managerGenerarRegMercTransito.ABAS_IngresosCompra.ORDCO_Codigo.Substring(6, 7)
+                    End If
+                Else
+                    txtOCSerie.Clear()
+                    txtOCNumero.Clear()
+                End If
+                If managerGenerarRegMercTransito.ABAS_IngresosCompra.INGCO_Estado = Constantes.getEstado(Constantes.EstadoDocVta.Anulado) Then
+                    acpnlTitulo.Active = True
+                End If
+
+            End If
+        Catch ex As Exception
+            Throw ex
+        End Try
+    End Sub
+
+    Private Function validarAnulacion(ByRef msg As String) As Boolean
+        Try
+            If Not IsNothing(bs_abas_ingresocompras) Then
+                If Not IsNothing(bs_abas_ingresocompras.Current) Then
+                    Return True
+                Else
+                    msg = "No se ha seleccionado ningun registro"
+                    Return False
+                End If
+            Else
+                msg = "No se ha cargado ningun registro"
+                Return False
+            End If
+        Catch ex As Exception
+            Throw ex
+        End Try
+    End Function
+
+    Private Sub Ordenar(ByVal x_columna As String)
+        Dim _ordenador As New ACOrdenador(Of EABAS_IngresosCompra)
+        Try
+            If m_order = 2 Then x_columna += " DESC"
+            _ordenador.ACOrdenamiento = x_columna
+            CType(bs_abas_ingresocompras.DataSource, List(Of EABAS_IngresosCompra)).Sort(_ordenador)
+            c1grdMTBusqueda.Refresh()
+            m_order = IIf(m_order = 1, 2, 1)
+        Catch ex As Exception
+            Throw ex
+        End Try
+    End Sub
+#End Region
+
+#Region " Metodos de Controles"
+
+    Private Sub _KeyUp(ByVal sender As System.Object, ByVal e As System.Windows.Forms.KeyEventArgs) Handles Me.KeyUp
+        If e.KeyCode = Keys.Enter Then
+            If sender.Name = "txtBusqueda" Then
+                Exit Sub
+            End If
+            If TypeOf ActiveControl Is ACControles.ACTextBoxAyuda And ActiveControl.Name = "actxaProdCodigo" Then
+                Exit Sub
+            End If
+            SendKeys.Send("{TAB}")
+        End If
+    End Sub
+
+    Private Sub TRegIngMercaderia_Activated(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles MyBase.Activated
+        txtMTBusqueda_ACAyudaClick(Nothing, Nothing)
+    End Sub
+
+    Private Sub AcFecha_ACFecIni_KeyDown(ByVal sender As System.Object, ByVal e As System.Windows.Forms.KeyEventArgs) Handles AcFecha.ACFecIni_KeyDown
+        If e.KeyData = Keys.Enter Then
+            AcFecha.ACDtpFecha_A.Focus()
+        End If
+    End Sub
+
+    Private Sub AcFecha_ACFecFin_KeyDown(ByVal sender As System.Object, ByVal e As System.Windows.Forms.KeyEventArgs) Handles AcFecha.ACFecFin_KeyDown
+        If e.KeyData = Keys.Enter Then
+            btnMTConsultar_Click(Nothing, Nothing)
+        End If
+    End Sub
+
+    Private Sub btnMTConsultar_Click(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles btnMTConsultar.Click
+        txtMTBusqueda_ACAyudaClick(Nothing, Nothing)
+    End Sub
+
+    Private Sub txtMTBusqueda_ACAyudaClick(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles txtBusqueda.ACAyudaClick
+        Try
+            busquedaDatos(txtBusqueda.Text)
+        Catch ex As Exception
+            ACControles.ACDialogos.ACMostrarMensajeError(String.Format("Error: {0}", Convert.ToString(Text)), "No se puede cargar la ayuda de los conductores", ex)
+        End Try
+    End Sub
+
+    Private Sub bs_abas_ingresocompras_CurrentChanged(ByVal sender As System.Object, ByVal e As System.EventArgs)
+        Try
+            If Not IsNothing(bs_abas_ingresocompras.Current) Then
+                If CType(bs_abas_ingresocompras.Current, EABAS_IngresosCompra).INGCO_Estado = EABAS_IngresosCompra.getEstado(EABAS_IngresosCompra.Estado.Confirmado) Then
+                    acTool.ACBtnModificarEnabled = True 'False
+                    acTool.ACBtnAnularVisible = False
+                    actsbtnPrevisualizar.Visible = True
+                    acTool.ACBtnModificarEnabled = True 'False
+                ElseIf CType(bs_abas_ingresocompras.Current, EABAS_IngresosCompra).INGCO_Estado = EABAS_IngresosCompra.getEstado(EABAS_IngresosCompra.Estado.Anulado) Then
+                    acTool.ACBtnModificarEnabled = False
+                    acTool.ACBtnAnularVisible = False
+                    actsbtnPrevisualizar.Visible = True
+                Else
+                    acTool.ACBtnModificarEnabled = True
+                    acTool.ACBtnAnularVisible = False
+                    actsbtnPrevisualizar.Visible = True
+                    acTool.ACBtnModificarEnabled = True
+                End If
+            End If
+        Catch ex As Exception
+            ACControles.ACDialogos.ACMostrarMensajeError(String.Format("Error: {0}", Me.Text), "Ocurrio un error en el proceso Cargar Propiedades del Cotización/Pedido", ex)
+        End Try
+    End Sub
+
+    Private Sub chkAgrupar_CheckedChanged(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles chkAgrupar.CheckedChanged
+        Try
+            If chkAgrupar.Checked Then
+                OrdenarPedidos("ENTID_CodigoProveedor")
+                c1grdMTBusqueda.Subtotal(AggregateEnum.Sum, 1, 1, 1, 1, "Proveedor: {0}")
+            Else
+                c1grdMTBusqueda.Subtotal(AggregateEnum.Clear)
+            End If
+            c1grdMTBusqueda.AutoSizeCols()
+        Catch ex As Exception
+            ACControles.ACDialogos.ACMostrarMensajeError(String.Format("Error: {0}", Convert.ToString(Text)), "No se agrupar resultados", ex)
+        End Try
+    End Sub
+
+    Private Sub acTool_ACBtnCancelar_Click(ByVal sender As Object, ByVal e As System.EventArgs) Handles acTool.ACBtnCancelar_Click
+        Try
+            setInstancia(ACUtilitarios.ACSetInstancia.Deshacer)
+        Catch ex As Exception
+            ACControles.ACDialogos.ACMostrarMensajeError(String.Format("Error: {0}", Me.Text), String.Format(Colecciones.getError("00101"), "Cancelar registro de mercaderia"), ex)
+        End Try
+    End Sub
+
+
+    Private Sub acTool_ACBtnGrabar_Click(ByVal sender As Object, ByVal e As System.EventArgs) Handles acTool.ACBtnGrabar_Click
+        Dim m_msg As String = ""
+        Try
+            If managerGenerarRegMercTransito.ABAS_IngresosCompra.INGCO_Estado = EABAS_IngresosCompra.getEstado(EABAS_IngresosCompra.Estado.Ingresado) Then
+
+                If grabarIngresoMercaderia(m_msg) Then 'CONSULTAR ORDEN DE COMPRA 
+                    '' Manejar las opciones de la barra de herramientas
+                    acTool.setInstancia(ACControles.ACToolBarMantHorizontalNew.TipoInstancia.Cancelar)
+                    tabMantenimiento.SelectedTab = tabBusqueda
+                    ACControles.ACDialogos.ACMostrarMensajeSatisfactorio(String.Format("Información: {0}", Me.Text), "Grabado Satisfactoriamente")
+
+                    btnMTConsultar_Click(Nothing, Nothing)
+                    setInstancia(ACUtilitarios.ACSetInstancia.Deshacer)
+                Else
+                    acTool.setInstancia(ACControles.ACToolBarMantHorizontalNew.TipoInstancia.Nuevo)
+                    ACControles.ACDialogos.ACMostrarMensajeInformacion(String.Format("Información: {0}", Me.Text), "No se puede grabar, revise los detalles:", m_msg)
+                End If
+            ElseIf managerGenerarRegMercTransito.ABAS_IngresosCompra.INGCO_Estado = EABAS_IngresosCompra.getEstado(EABAS_IngresosCompra.Estado.Confirmado) Then
+
+                ''''grabar ingreso de mercaderia en estado confirmado 20230630
+                If grabarIngresoMercaderiaConfirmada(m_msg) Then
+                    '' Manejar las opciones de la barra de herramientas
+                    acTool.setInstancia(ACControles.ACToolBarMantHorizontalNew.TipoInstancia.Cancelar)
+                    tabMantenimiento.SelectedTab = tabBusqueda
+                    ACControles.ACDialogos.ACMostrarMensajeSatisfactorio(String.Format("Información: {0}", Me.Text), "Grabado Satisfactoriamente")
+
+                    btnMTConsultar_Click(Nothing, Nothing)
+                    setInstancia(ACUtilitarios.ACSetInstancia.Deshacer)
+                Else
+                    acTool.setInstancia(ACControles.ACToolBarMantHorizontalNew.TipoInstancia.Nuevo)
+                    ACControles.ACDialogos.ACMostrarMensajeInformacion(String.Format("Información: {0}", Me.Text), "No se puede grabar, revise los detalles:", m_msg)
+                End If
+            Else
+                If grabarIngresoMercaderia(m_msg) Then
+                    '' Manejar las opciones de la barra de herramientas
+                    acTool.setInstancia(ACControles.ACToolBarMantHorizontalNew.TipoInstancia.Cancelar)
+                    tabMantenimiento.SelectedTab = tabBusqueda
+                    ACControles.ACDialogos.ACMostrarMensajeSatisfactorio(String.Format("Información: {0}", Me.Text), "Grabado Satisfactoriamente")
+
+                    btnMTConsultar_Click(Nothing, Nothing)
+                    setInstancia(ACUtilitarios.ACSetInstancia.Deshacer)
+                Else
+                    acTool.setInstancia(ACControles.ACToolBarMantHorizontalNew.TipoInstancia.Nuevo)
+                    ACControles.ACDialogos.ACMostrarMensajeInformacion(String.Format("Información: {0}", Me.Text), "No se puede grabar, revise los detalles:", m_msg)
+                End If
+            End If
+        Catch ex As Exception
+            acTool.setInstancia(ACControles.ACToolBarMantHorizontalNew.TipoInstancia.Nuevo)
+            ACControles.ACDialogos.ACMostrarMensajeError(String.Format("Error: {0}", Me.Text), String.Format(Colecciones.getError("00101"), "Grabar registro de mercaderia"), ex)
+        End Try
+    End Sub
+
+    Private Sub acTool_ACBtnNuevo_Click(ByVal sender As Object, ByVal e As System.EventArgs) Handles acTool.ACBtnNuevo_Click
+        Try
+            m_frmconsultas = Nothing
+            setInstancia(ACUtilitarios.ACSetInstancia.Nuevo)
+            managerGenerarRegMercTransito.BABAS_IngresosCompra = New BABAS_IngresosCompra
+            managerGenerarRegMercTransito.ABAS_IngresosCompra = New EABAS_IngresosCompra
+            managerGenerarRegMercTransito.ABAS_IngresosCompra.Instanciar(ACEInstancia.Nuevo)
+            managerGenerarRegMercTransito.ABAS_IngresosCompra.ListABAS_IngresosCompraDetalle = New List(Of EABAS_IngresosCompraDetalle)
+            AsignarBinding()
+
+            bs_detabas_ingresoscompra = New BindingSource
+            bs_detabas_ingresoscompra.DataSource = managerGenerarRegMercTransito.ABAS_IngresosCompra.ListABAS_IngresosCompraDetalle
+            c1grdDetalle.DataSource = bs_detabas_ingresoscompra
+            bnavProductos.BindingSource = bs_detabas_ingresoscompra
+
+            frmCons = Nothing
+            pnlItem.Enabled = True
+            Label21.Focus()
+
+            Me.KeyPreview = True
+        Catch ex As Exception
+            ACControles.ACDialogos.ACMostrarMensajeError(String.Format("Error: {0}", Me.Text), String.Format(Colecciones.getError("00101"), "Nuevo Registro de Mercaderia"), ex)
+        End Try
+    End Sub
+
+    Private Sub acTool_ACBtnSalir_Click(ByVal sender As Object, ByVal e As System.EventArgs) Handles acTool.ACBtnSalir_Click
+        Me.Close()
+    End Sub
+
+    Private Sub acTool_ACBtnAnular_Click(sender As Object, e As EventArgs) Handles acTool.ACBtnAnular_Click
+        Dim msg As String = ""
+        Try
+            If validarAnulacion(msg) Then
+                Dim _codigo As String = CType(bs_abas_ingresocompras.Current, EABAS_IngresosCompra).INGCO_Id
+                If ACControles.ACDialogos.ACMostrarMensajePregunta(String.Format("Anular Registro: {0}", Me.Text) _
+                    , String.Format("Desea anular el registro de ingreso Nro : {0}, del proveedor {1} " _
+                                    , _codigo _
+                                    , CType(bs_abas_ingresocompras.Current, EABAS_IngresosCompra).ENTID_Proveedor) _
+                    , ACControles.ACDialogos.LabelBotom.Si_No) = DialogResult.Yes Then
+                    Dim _ingresoscompra As New BABAS_IngresosCompra
+                    _ingresoscompra.ABAS_IngresosCompra = New EABAS_IngresosCompra
+                    'managerABAS_IngresosCompra.ABAS_IngresosCompra.INGCO_Codigo = _codigo
+                    _ingresoscompra.ABAS_IngresosCompra.ALMAC_Id = managerGenerarRegMercTransito.ABAS_IngresosCompra.ALMAC_Id
+                    _ingresoscompra.ABAS_IngresosCompra.INGCO_Id = managerGenerarRegMercTransito.ABAS_IngresosCompra.INGCO_Id
+                    _ingresoscompra.ABAS_IngresosCompra.INGCO_Estado = EABAS_IngresosCompra.getEstado(EABAS_IngresosCompra.Estado.Anulado)
+                    _ingresoscompra.ABAS_IngresosCompra.Instanciar(ACEInstancia.Modificado)
+                    If _ingresoscompra.Guardar(GApp.Usuario) Then
+                        ACControles.ACDialogos.ACMostrarMensajeSatisfactorio(String.Format("Información: {0}", Me.Text), String.Format("Registro de Ingreso Nro {0}, Anulada satisfactoriamente", _codigo))
+                        setInstancia(ACUtilitarios.ACSetInstancia.Deshacer)
+                        btnMTConsultar_Click(Nothing, Nothing)
+                        'actsbtnPrevisualizar_Click(Nothing, Nothing)
+                    End If
+                End If
+            Else
+                ACControles.ACDialogos.ACMostrarMensajeInformacion(String.Format("Información: {0}", Me.Text), "No se puede cargar", msg)
+            End If
+        Catch ex As Exception
+            ACControles.ACDialogos.ACMostrarMensajeError(String.Format("Error: {0}", Me.Text), String.Format(Colecciones.getError("00101"), "Anular el Ingreso de Mercaderia"), ex)
+        End Try
+    End Sub
+
+    Private Sub actxaProvCodigo_ACAyudaClick(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles actxaProvRuc.ACAyudaClick
+        Try
+            AyudaEntidad(actxaProvRuc.Text, "ENTID_NroDocumento", EEntidades.TipoEntidad.ProveedoresLogistica)
+        Catch ex As Exception
+            ACControles.ACDialogos.ACMostrarMensajeError(String.Format("Error: {0}", Me.Text), "Ocurrio un error en el proceso Documento de Identidad", ex)
+        End Try
+    End Sub
+
+    Private Sub actxaProvNombres_ACAyudaClick(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles actxaProvRazonSocial.ACAyudaClick
+        Try
+            AyudaEntidad(actxaProvRazonSocial.Text, "ENTID_RazonSocial", EEntidades.TipoEntidad.ProveedoresLogistica)
+        Catch ex As Exception
+            ACControles.ACDialogos.ACMostrarMensajeError(String.Format("Error: {0}", Me.Text), "Ocurrio un error en el proceso busqueda de cliente por Nombre/Razon Social", ex)
+        End Try
+    End Sub
+
+    Private Sub CargarProveedor()
+        Try
+            'If actxaProvRuc.Text.ToString().Length >= Constantes.LongitudCodigo Then
+            '' Cargar datos adicionales cliente
+            If actxaProvRuc.ACAyuda.Enabled = True Then
+                If managerEntidades.CargarDocIden(actxaProvRuc.Text, EEntidades.TipoInicializacion.Proveedor) Then
+                    '' Cargar datos del cliente   
+                    managerGenerarRegMercTransito.ABAS_IngresosCompra.ENTID_CodigoProveedor = managerEntidades.Entidades.ENTID_Codigo
+                    m_eentidades = managerEntidades.Entidades
+
+                    actxaProvRazonSocial.Text = managerEntidades.Entidades.ENTID_RazonSocial
+                    actxaProvRuc.Text = managerEntidades.Entidades.ENTID_NroDocumento
+                    'cargarProveedor(managerEntidades.Proveedor.ENTID_Codigo)
+                    'setRolProveedor(IIf(getFilterRol(), Seteo.Activar, Seteo.Desactivar))
+                    pnlItem.Enabled = True
+                    Label2.Focus()
+                Else
+                    If ACControles.ACDialogos.ACMostrarMensajePregunta(String.Format("Documento de Identidad: {0}", Me.Text) _
+                                        , String.Format("El Documento de Identidad {0} no existe, ¿Desea Ingresar la Entidad?", actxaProvRuc.Text) _
+                                        , ACControles.ACDialogos.LabelBotom.Si_No) = DialogResult.Yes Then
+                        NuevoProveedor(actxaProvRuc.Text)
+                    Else
+                        btnClean_Click(Nothing, Nothing)
+                        Label5.Focus()
+                    End If
+                End If
+            Else
+                If managerEntidades.CargarDocIden(actxaProvRuc.Text, EEntidades.TipoInicializacion.Proveedor) Then
+                    managerGenerarRegMercTransito.ABAS_IngresosCompra.ENTID_CodigoProveedor = managerEntidades.Entidades.ENTID_Codigo
+                    m_eentidades = managerEntidades.Entidades
+
+                    actxaProvRazonSocial.Text = managerEntidades.Entidades.ENTID_RazonSocial
+                    actxaProvRuc.Text = managerEntidades.Entidades.ENTID_NroDocumento
+                End If
+            End If
+            'Else
+            '    ACControles.ACDialogos.ACMostrarMensajeInformacion(String.Format("Información: {0}", Me.Text), String.Format("El Documento de Identidad {0} no existe, el documento ingresado tienen menos de 8 numeros", actxaProvRuc.Text))
+            '    btnClean_Click(Nothing, Nothing)
+            '    Label5.Focus()
+            'End If
+        Catch ex As Exception
+            Throw ex
+        End Try
+    End Sub
+
+    Private Sub actxaProvRuc_KeyDown(ByVal sender As System.Object, ByVal e As System.Windows.Forms.KeyEventArgs) Handles actxaProvRuc.KeyDown
+        Try
+            If e.KeyData = Keys.Enter Then
+                CargarProveedor()
+            End If
+        Catch ex As Exception
+            ACControles.ACDialogos.ACMostrarMensajeError(String.Format("Error: {0}", Me.Text), "Ocurrio un error en el proceso Cargar Cliente", ex)
+        End Try
+    End Sub
+
+    Private Sub btnClean_Click(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles btnClean.Click
+        Try
+            m_eentidades = New EEntidades
+            'actxaProvCodigo.Clear()
+            actxaProvRazonSocial.Clear()
+            actxaProvRuc.Clear()
+            'setRol(Constantes.Seteo.Activar)
+            pnlItem.Enabled = False
+        Catch ex As Exception
+            ACControles.ACDialogos.ACMostrarMensajeError(String.Format("Error: {0}", Me.Text), "Ocurrio un error en el proceso Limpiar Entidad", ex)
+        End Try
+    End Sub
+
+    Private Sub actxaOrdenCompra_ACAyudaClick(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles actxaOrdenCompra.ACAyudaClick
+        Try
+            If IsNothing(m_frmconsultas) Then m_frmconsultas = New COrdenesCompras(BGenerarRegMercTransito.TConsulta.Compras) With {.StartPosition = FormStartPosition.CenterScreen}
+            If m_frmconsultas.ShowDialog() = System.Windows.Forms.DialogResult.OK Then
+                m_tconsulta = m_frmconsultas.TConsulta
+                CargarDatos()
+                AsignarBinding()
+                actxaProvRazonSocial.Text = managerGenerarRegMercTransito.ABAS_IngresosCompra.ENTID_Proveedor
+                Label23.Focus()
+                ' pnlItem.Enabled = False
+                'Cargar el detalle de la compra
+
+                ' managerGenerarRegMercTransito.ABAS_IngresosCompra.ListABAS_IngresosCompraDetalle = New List(Of EABAS_IngresosCompraDetalle)
+                bs_detabas_ingresoscompra = New BindingSource
+                bs_detabas_ingresoscompra.DataSource = managerGenerarRegMercTransito.ABAS_IngresosCompra.ListABAS_IngresosCompraDetalle
+                bnavProductos.BindingSource = bs_detabas_ingresoscompra
+                c1grdDetalle.DataSource = bs_detabas_ingresoscompra
+
+
+
+            End If
+            '
+        Catch ex As Exception
+            ACControles.ACDialogos.ACMostrarMensajeError(String.Format("Error: {0}", Me.Text), String.Format(Colecciones.getError("00101"), "Ayuda de Orde de Compra/Doc. de Compra"), ex)
+        End Try
+    End Sub
+
+    Private Sub actxaProdCodigo_ACAyudaClick(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles actxaProdCodigo.ACAyudaClick
+        Try
+            If IsNothing(frmCons) Then frmCons = New CProductos(CProductos.Origen.Cotizaciones) With {.StartPosition = FormStartPosition.CenterScreen}
+            Me.KeyPreview = False
+            If frmCons.ShowDialog() = System.Windows.Forms.DialogResult.OK Then
+                m_earticulos = frmCons.Articulo
+                setProducto(True)
+                Dim _filter As New ACFiltrador(Of ETipos)
+                _filter.ACFiltro = String.Format("TIPOS_Codigo={0}", m_earticulos.TIPOS_CodUnidadMedida)
+                If _filter.ACFiltrar(Colecciones.TiposUniMedDecimal).Count > 0 Then
+                    actxnCantidad.ACDecimales = 2
+                    'R
+                    PesoUnitario.Text = m_earticulos.ARTIC_Peso
+                Else
+                    actxnCantidad.ACDecimales = 0
+                    PesoUnitario.Text = m_earticulos.ARTIC_Peso
+                End If
+                Me.KeyPreview = True
+            End If
+        Catch ex As Exception
+            ACControles.ACDialogos.ACMostrarMensajeError(String.Format("Error: {0}", Me.Text), "Ocurrio un error en el proceso cargar productos", ex)
+        End Try
+    End Sub
+
+    Private Sub txtOpcion_KeyPress(ByVal sender As System.Object, ByVal e As System.Windows.Forms.KeyPressEventArgs) Handles txtOpcion.KeyPress
+        Try
+            'R
+            'If actxnCantidad.Text > 0 Then
+            Select Case e.KeyChar
+                Case "+"c
+                    If m_modArticulo Then
+                        e.Handled = True
+                        CType(bs_detabas_ingresoscompra.Current, EABAS_IngresosCompraDetalle).INGCD_Cantidad = actxnCantidad.Text
+                        CType(bs_detabas_ingresoscompra.Current, EABAS_IngresosCompraDetalle).ARTIC_Codigo = actxaProdCodigo.Text
+                        CType(bs_detabas_ingresoscompra.Current, EABAS_IngresosCompraDetalle).ARTIC_Descripcion = txtProdDescripcion.Text
+                        setProducto(False)
+                        calcular()
+                        c1grdDetalle.Enabled = True
+                        Me.KeyPreview = False
+                        m_modArticulo = False
+                    Else
+                        e.Handled = True
+                        actxaProdCodigo.Focus()
+                        txtOpcion.Text = ""
+                        txtOpcion.SelectAll()
+                        addDetalle()
+                        setProducto(False)
+                    End If
+                Case "-"c
+                    e.Handled = True
+                Case Else
+                    e.Handled = True
+            End Select
+            'Else
+            'ACControles.ACDialogos.ACMostrarMensajeError(String.Format("Error: {0}", Me.Text), "la cantidad no puede ser 0")
+            'actxnCantidad.Focus()
+            'End If
+
+        Catch ex As Exception
+            ACControles.ACDialogos.ACMostrarMensajeError(String.Format("Error: {0}", Me.Text), "Ocurrio un error en el proceso opciones", ex)
+        End Try
+    End Sub
+
+    Private Sub txtOpcion_KeyDown(ByVal sender As System.Object, ByVal e As System.Windows.Forms.KeyEventArgs) Handles txtOpcion.KeyDown
+        Try
+            'R
+            If actxnCantidad.Text > 0 Then
+                Select Case e.KeyData
+                    Case Keys.Enter
+                        addDetalle()
+                        setProducto(False)
+                        Me.KeyPreview = False
+                        m_modArticulo = False
+
+                        acTool.Focus()
+                        acTool.ACBtnGrabar.Select()
+
+                    Case Keys.Escape
+                        setProducto(False)
+                        c1grdDetalle.Enabled = True
+                        'cmbPrecioUnitario.Enabled = False
+                        Me.KeyPreview = False
+                        m_modArticulo = False
+                    Case Else
+
+                End Select
+            Else
+                ACControles.ACDialogos.ACMostrarMensajeError(String.Format("Error: {0}", Me.Text), "la cantidad no puede ser 0")
+                actxnCantidad.Focus()
+            End If
+
+
+        Catch ex As Exception
+            ACControles.ACDialogos.ACMostrarMensajeError(String.Format("Error: {0}", Text), "No se puede procesar", ex)
+        End Try
+    End Sub
+
+    Private Sub c1grdDetalle_AfterEdit(ByVal sender As System.Object, ByVal e As C1.Win.C1FlexGrid.RowColEventArgs) Handles c1grdDetalle.AfterEdit
+        Try
+            calcular()
+        Catch ex As Exception
+            ACControles.ACDialogos.ACMostrarMensajeError(String.Format("Error: {0}", Text), "No se puede calcular", ex)
+        End Try
+    End Sub
+
+    Private Sub c1grdBusqueda_OwnerDrawCell(ByVal sender As System.Object, ByVal e As C1.Win.C1FlexGrid.OwnerDrawCellEventArgs) Handles c1grdMTBusqueda.OwnerDrawCell
+        Try
+            If e.Row < c1grdMTBusqueda.Rows.Fixed OrElse e.Col < c1grdMTBusqueda.Cols.Fixed Then Return
+            If c1grdMTBusqueda.Cols(e.Col).Name = "ENTID_CodigoProveedor" Or c1grdMTBusqueda.Cols(e.Col).Name = "Codigo" Or c1grdMTBusqueda.Cols(e.Col).Name = "Compra" _
+               Or c1grdMTBusqueda.Cols(e.Col).Name = "Orden" Or c1grdMTBusqueda.Cols(e.Col).Name = "ENTID_CodigoProveedor" Then
+                If c1grdMTBusqueda.Rows(e.Row)("INGCO_Estado") = EABAS_IngresosCompra.getEstado(EABAS_IngresosCompra.Estado.Confirmado) Then
+                    e.Style = c1grdMTBusqueda.Styles("Facturado")
+                End If
+            End If
+
+
+            If c1grdMTBusqueda.Rows(e.Row)("INGCO_Estado") = EABAS_IngresosCompra.getEstado(EABAS_IngresosCompra.Estado.Anulado) Then
+                e.Style = c1grdMTBusqueda.Styles("Anulado")
+            End If
+        Catch ex As Exception
+            ACControles.ACDialogos.ACMostrarMensajeError(String.Format("Error: {0}", Me.Text), "Ocurrio un error en el proceso cambia de color", ex)
+        End Try
+    End Sub
+
+    Private Sub c1grdBusqueda_BeforeSort(ByVal sender As System.Object, ByVal e As C1.Win.C1FlexGrid.SortColEventArgs) Handles c1grdMTBusqueda.BeforeSort
+        Try
+            Ordenar(c1grdMTBusqueda.Cols(e.Col).UserData)
+            c1grdMTBusqueda.Subtotal(AggregateEnum.Clear)
+        Catch ex As Exception
+            ACControles.ACDialogos.ACMostrarMensajeError(String.Format("Error: {0}", Me.Text), "Ocurrio un error en el proceso ordenar", ex)
+        End Try
+    End Sub
+
+
+    Private Sub c1grdDetalle_KeyDown(ByVal sender As System.Object, ByVal e As System.Windows.Forms.KeyEventArgs)
+        Try
+            e.SuppressKeyPress = True
+            Select Case e.KeyCode
+                Case Keys.Enter
+                    subirItem()
+                    c1grdDetalle.Enabled = False
+                    Label8.Focus()
+                    m_modArticulo = True
+                    Me.KeyPreview = True
+                Case Keys.Delete
+                    If ACControles.ACDialogos.ACMostrarMensajePregunta(String.Format("Quitar Registro: {0}", Me.Text) _
+                  , String.Format("Desea quitar el Articulo : {0} ", CType(bs_detabas_ingresoscompra.Current, EABAS_IngresosCompraDetalle).ARTIC_Descripcion) _
+                  , ACControles.ACDialogos.LabelBotom.Si_No) = DialogResult.Yes Then
+                        Dim m_det As EABAS_IngresosCompraDetalle = CType(bs_detabas_ingresoscompra.Current, EABAS_IngresosCompraDetalle)
+                        managerGenerarRegMercTransito.ABAS_IngresosCompra.ListABAS_IngresosCompraDetalle.Remove(m_det)
+                        bs_detabas_ingresoscompra.ResetBindings(False)
+                        calcular()
+                    End If
+                Case Else
+                    e.Handled = False
+            End Select
+        Catch ex As Exception
+            ACControles.ACDialogos.ACMostrarMensajeError(String.Format("Error: {0}", Text), "No se puede calcular carga el Item", ex)
+        End Try
+    End Sub
+#End Region
+
+    Private Sub actsbtnPrevisualizar_Click(sender As Object, e As EventArgs) Handles actsbtnPrevisualizar.Click
+        Try
+            If Not IsNothing(bs_abas_ingresocompras) Then
+                If Not IsNothing(bs_abas_ingresocompras.Current) Then
+                    '' Codigo
+                    Dim _ingco_id As Long = CType(bs_abas_ingresocompras.Current, EABAS_IngresosCompra).INGCO_Id
+                    Dim x_almac As Short = CType(bs_abas_ingresocompras.Current, EABAS_IngresosCompra).ALMAC_Id
+                    cargar(_ingco_id, x_almac)
+                    setInstancia(ACUtilitarios.ACSetInstancia.Previsualizar)
+                Else
+                    Throw New Exception("No se puede cargar el documento")
+                End If
+            Else
+                Throw New Exception("No se puede cargar el documento")
+            End If
+
+        Catch ex As Exception
+            ACControles.ACDialogos.ACMostrarMensajeError(String.Format("Error: {0}", Me.Text), String.Format(Colecciones.getError("00101"), "Revisar el Documento"), ex)
+        End Try
+    End Sub
+
+    Private Sub actxnNumero_KeyDown(sender As Object, e As KeyEventArgs) Handles actxnNumero.KeyDown
+        If Not pnlItem.Enabled Then
+            If e.KeyData = Keys.Enter Then
+                KeyPreview = False
+                acTool.Focus()
+                acTool.ACBtnGrabar.Select()
+            End If
+        End If
+    End Sub
+
+    Private Sub acTool_LostFocus(sender As Object, e As EventArgs) Handles acTool.LostFocus
+        If tabMantenimiento.SelectedTab Is tabDatos Then
+            Me.KeyPreview = True
+        End If
+    End Sub
+
+    Private Sub acTool_ACBtnModificar_Click(sender As Object, e As EventArgs) Handles acTool.ACBtnModificar_Click
+        Try
+            If Not IsNothing(bs_abas_ingresocompras) Then
+                If Not IsNothing(bs_abas_ingresocompras.Current) Then
+
+
+                    '' Codigo
+                    Dim _ingco_id As Long = CType(bs_abas_ingresocompras.Current, EABAS_IngresosCompra).INGCO_Id
+                    Dim x_almac As Short = CType(bs_abas_ingresocompras.Current, EABAS_IngresosCompra).ALMAC_Id
+                    cargar(_ingco_id, x_almac)
+                    ' setInstancia(ACUtilitarios.ACSetInstancia.Modificado)
+
+                    '20230630
+                    If Not CType(bs_abas_ingresocompras.Current, EABAS_IngresosCompra).INGCO_Estado = EABAS_IngresosCompra.getEstado(EABAS_IngresosCompra.Estado.Confirmado) Then
+
+                        setInstancia(ACUtilitarios.ACSetInstancia.Modificado)
+                    Else
+
+                        ' c1grdDetalle.Focus()
+                        actsbtnPrevisualizar.Visible = True
+                        tabMantenimiento.SelectedTab = tabDatos
+                        acTool.ACBtnAnularVisible = False
+                        tabMantenimiento.SelectedTab = tabDatos
+                        actsbtnPrevisualizar.Visible = False
+                        ACUtilitarios.ACSetControl(pnlCabecera, False, ACUtilitarios.TipoPropiedad.ACReadOnly)
+                        ACUtilitarios.ACSetControl(grpDocReferencia, False, ACUtilitarios.TipoPropiedad.ACReadOnly)
+
+                        c1grdDetalle.AllowEditing = False
+                        pnlItem.Enabled = False
+                        acTool.setInstancia(ACControles.ACToolBarMantHorizontalNew.TipoInstancia.Nuevo)
+                        'acTool.ACBtnGrabarVisible = False
+                        'acTool.ACBtnRehusarVisible = True
+                        actsbtnPrevisualizar.Visible = False
+                        If managerGenerarRegMercTransito.ABAS_IngresosCompra.INGCO_Estado = EABAS_IngresosCompra.getEstado(EABAS_IngresosCompra.Estado.Confirmado) Then
+                            acTool.ACBtnAnularVisible = False
+                        ElseIf managerGenerarRegMercTransito.ABAS_IngresosCompra.INGCO_Estado = EABAS_IngresosCompra.getEstado(EABAS_IngresosCompra.Estado.Anulado) Then
+                            acTool.ACBtnAnularVisible = False
+                        Else
+                            acTool.ACBtnAnularVisible = True
+                        End If
+
+                        tabMantenimiento.SelectedTab = tabDatos
+
+                    End If
+                Else
+                    Throw New Exception("No se puede cargar el documento")
+                End If
+            Else
+                Throw New Exception("No se puede cargar el documento")
+            End If
+        Catch ex As Exception
+            ACControles.ACDialogos.ACMostrarMensajeError(String.Format("Error: {0}", Me.Text), String.Format(Colecciones.getError("00101"), "Modificar Documento"), ex)
+        End Try
+    End Sub
+
+    Private Sub subirItem()
+        Try
+            If IsNothing(CType(bs_detabas_ingresoscompra.Current, EABAS_IngresosCompraDetalle).Articulo) Then
+                '' Cargar Producto
+                actxaProdCodigo.Text = CType(bs_detabas_ingresoscompra.Current, EABAS_IngresosCompraDetalle).ARTIC_Codigo
+                txtProdDescripcion.Text = CType(bs_detabas_ingresoscompra.Current, EABAS_IngresosCompraDetalle).ARTIC_Descripcion
+                actxnCantidad.Text = CType(bs_detabas_ingresoscompra.Current, EABAS_IngresosCompraDetalle).INGCD_Cantidad
+            Else
+                m_earticulos = CType(bs_detabas_ingresoscompra.Current, EABAS_IngresosCompraDetalle).Articulo
+                setProducto(True)
+                actxnCantidad.Text = CType(bs_detabas_ingresoscompra.Current, EABAS_IngresosCompraDetalle).INGCD_Cantidad
+            End If
+        Catch ex As Exception
+            Throw ex
+        End Try
+    End Sub
+
+    Private Sub txtOpcion_TextChanged(sender As Object, e As EventArgs) Handles txtOpcion.TextChanged
+
+    End Sub
+
+
+
+    Private Sub TRegIngMercaderia_Load(sender As Object, e As EventArgs) Handles MyBase.Load
+
+    End Sub
+
+    Private Sub actxaOrdenCompra_TextChanged(sender As Object, e As EventArgs) Handles actxaOrdenCompra.TextChanged
+
+    End Sub
+
+    Private Sub acTool_ItemClicked(sender As Object, e As ToolStripItemClickedEventArgs) Handles acTool.ItemClicked
+
+    End Sub
+
+    Private Sub tsbtnExcel_Click(sender As Object, e As EventArgs) Handles tsbtnExcel.Click
+        Try
+            Utilitarios.ExportarXLS(c1grdDetalle, "Ingresos X Compras")
+        Catch ex As Exception
+            ACControles.ACDialogos.ACMostrarMensajeError(String.Format("Error: {0}", Me.Text), "Ocurrio un error en el proceso Exportar a Excel", ex)
+        End Try
+    End Sub
+
+    Private Sub ChkEditDetalles_Click(sender As Object, e As EventArgs) Handles ChkEditDetalles.Click
+        'Evento click para activar .. la edicion de detalle 
+        If (ChkEditDetalles.Checked = True) Then
+
+            Activate_PanelItems()
+        Else
+            Desactivate_PanelItems()
+
+        End If
+
+
+    End Sub
+
+
+
+    Private Function Desactivate_PanelItems()
+        actxaProdCodigo.Enabled = False
+        txtProdDescripcion.Enabled = False
+        txtUnidad.Enabled = False
+        PesoUnitario.Enabled = False
+        actxnCantidad.Enabled = False
+        txtOpcion.Enabled = False
+    End Function
+    Private Function Activate_PanelItems()
+        actxaProdCodigo.Enabled = True
+        txtProdDescripcion.Enabled = True
+        txtUnidad.Enabled = True
+        PesoUnitario.Enabled = True
+        actxnCantidad.Enabled = True
+        txtOpcion.Enabled = True
+    End Function
+
+
+
+End Class

@@ -1,0 +1,69 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<xs:schema id="DTOrdenCompra" targetNamespace="http://tempuri.org/DTOrdenCompra.xsd" xmlns:mstns="http://tempuri.org/DTOrdenCompra.xsd" xmlns="http://tempuri.org/DTOrdenCompra.xsd" xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata" xmlns:msprop="urn:schemas-microsoft-com:xml-msprop" attributeFormDefault="qualified" elementFormDefault="qualified">
+  <xs:annotation>
+    <xs:appinfo source="urn:schemas-microsoft-com:xml-msdatasource">
+      <DataSource DefaultConnectionIndex="0" FunctionsComponentName="QueriesTableAdapter" Modifier="AutoLayout, AnsiClass, Class, Public" SchemaSerializationMode="IncludeSchema" xmlns="urn:schemas-microsoft-com:xml-msdatasource">
+        <Connections />
+        <Tables />
+        <Sources />
+      </DataSource>
+    </xs:appinfo>
+  </xs:annotation>
+  <xs:element name="DTOrdenCompra" msdata:IsDataSet="true" msdata:UseCurrentLocale="true" msprop:EnableTableAdapterManager="true" msprop:Generator_DataSetName="DTOrdenCompra" msprop:Generator_UserDSName="DTOrdenCompra">
+    <xs:complexType>
+      <xs:choice minOccurs="0" maxOccurs="unbounded">
+        <xs:element name="OrdenCompra" msprop:Generator_UserTableName="OrdenCompra" msprop:Generator_RowEvArgName="OrdenCompraRowChangeEvent" msprop:Generator_TableVarName="tableOrdenCompra" msprop:Generator_TablePropName="OrdenCompra" msprop:Generator_RowDeletingName="OrdenCompraRowDeleting" msprop:Generator_RowChangingName="OrdenCompraRowChanging" msprop:Generator_RowDeletedName="OrdenCompraRowDeleted" msprop:Generator_RowEvHandlerName="OrdenCompraRowChangeEventHandler" msprop:Generator_TableClassName="OrdenCompraDataTable" msprop:Generator_RowChangedName="OrdenCompraRowChanged" msprop:Generator_RowClassName="OrdenCompraRow">
+          <xs:complexType>
+            <xs:sequence>
+              <xs:element name="Codigo" msprop:Generator_ColumnVarNameInTable="columnCodigo" msprop:Generator_ColumnPropNameInRow="Codigo" msprop:Generator_ColumnPropNameInTable="CodigoColumn" msprop:Generator_UserColumnName="Codigo" type="xs:string" />
+              <xs:element name="Titulo" msprop:Generator_ColumnVarNameInTable="columnTitulo" msprop:Generator_ColumnPropNameInRow="Titulo" msprop:Generator_ColumnPropNameInTable="TituloColumn" msprop:Generator_UserColumnName="Titulo" type="xs:string" minOccurs="0" />
+              <xs:element name="ORDCO_FechaDocumento" msprop:Generator_ColumnVarNameInTable="columnORDCO_FechaDocumento" msprop:Generator_ColumnPropNameInRow="ORDCO_FechaDocumento" msprop:Generator_ColumnPropNameInTable="ORDCO_FechaDocumentoColumn" msprop:Generator_UserColumnName="ORDCO_FechaDocumento" type="xs:dateTime" minOccurs="0" />
+              <xs:element name="ORDCO_AtencionProveedor" msprop:Generator_ColumnVarNameInTable="columnORDCO_AtencionProveedor" msprop:Generator_ColumnPropNameInRow="ORDCO_AtencionProveedor" msprop:Generator_ColumnPropNameInTable="ORDCO_AtencionProveedorColumn" msprop:Generator_UserColumnName="ORDCO_AtencionProveedor" type="xs:string" minOccurs="0" />
+              <xs:element name="ORDCO_TelefonoProveedor" msprop:Generator_ColumnVarNameInTable="columnORDCO_TelefonoProveedor" msprop:Generator_ColumnPropNameInRow="ORDCO_TelefonoProveedor" msprop:Generator_ColumnPropNameInTable="ORDCO_TelefonoProveedorColumn" msprop:Generator_UserColumnName="ORDCO_TelefonoProveedor" type="xs:string" minOccurs="0" />
+              <xs:element name="ORDCO_CorreoProveedor" msprop:Generator_ColumnVarNameInTable="columnORDCO_CorreoProveedor" msprop:Generator_ColumnPropNameInRow="ORDCO_CorreoProveedor" msprop:Generator_ColumnPropNameInTable="ORDCO_CorreoProveedorColumn" msprop:Generator_UserColumnName="ORDCO_CorreoProveedor" type="xs:string" minOccurs="0" />
+              <xs:element name="ORDCO_Condiciones" msprop:Generator_ColumnVarNameInTable="columnORDCO_Condiciones" msprop:Generator_ColumnPropNameInRow="ORDCO_Condiciones" msprop:Generator_ColumnPropNameInTable="ORDCO_CondicionesColumn" msprop:Generator_UserColumnName="ORDCO_Condiciones" type="xs:string" minOccurs="0" />
+              <xs:element name="ORDCO_ImporteCompra" msprop:Generator_ColumnVarNameInTable="columnORDCO_ImporteCompra" msprop:Generator_ColumnPropNameInRow="ORDCO_ImporteCompra" msprop:Generator_ColumnPropNameInTable="ORDCO_ImporteCompraColumn" msprop:Generator_UserColumnName="ORDCO_ImporteCompra" type="xs:decimal" minOccurs="0" />
+              <xs:element name="ORDCO_TotalCompra" msprop:Generator_ColumnVarNameInTable="columnORDCO_TotalCompra" msprop:Generator_ColumnPropNameInRow="ORDCO_TotalCompra" msprop:Generator_ColumnPropNameInTable="ORDCO_TotalCompraColumn" msprop:Generator_UserColumnName="ORDCO_TotalCompra" type="xs:decimal" minOccurs="0" />
+              <xs:element name="ORDCO_ImporteIgv" msprop:Generator_ColumnVarNameInTable="columnORDCO_ImporteIgv" msprop:Generator_ColumnPropNameInRow="ORDCO_ImporteIgv" msprop:Generator_ColumnPropNameInTable="ORDCO_ImporteIgvColumn" msprop:Generator_UserColumnName="ORDCO_ImporteIgv" type="xs:decimal" minOccurs="0" />
+              <xs:element name="ORDCO_DireccionProveedor" msprop:Generator_ColumnVarNameInTable="columnORDCO_DireccionProveedor" msprop:Generator_ColumnPropNameInRow="ORDCO_DireccionProveedor" msprop:Generator_ColumnPropNameInTable="ORDCO_DireccionProveedorColumn" msprop:Generator_UserColumnName="ORDCO_DireccionProveedor" type="xs:string" minOccurs="0" />
+              <xs:element name="ENTID_Proveedor" msprop:Generator_ColumnVarNameInTable="columnENTID_Proveedor" msprop:Generator_ColumnPropNameInRow="ENTID_Proveedor" msprop:Generator_ColumnPropNameInTable="ENTID_ProveedorColumn" msprop:Generator_UserColumnName="ENTID_Proveedor" type="xs:string" minOccurs="0" />
+              <xs:element name="Usuario" msprop:Generator_ColumnVarNameInTable="columnUsuario" msprop:Generator_ColumnPropNameInRow="Usuario" msprop:Generator_ColumnPropNameInTable="UsuarioColumn" msprop:Generator_UserColumnName="Usuario" type="xs:string" minOccurs="0" />
+              <xs:element name="Cargo" msprop:Generator_ColumnVarNameInTable="columnCargo" msprop:Generator_ColumnPropNameInRow="Cargo" msprop:Generator_ColumnPropNameInTable="CargoColumn" msprop:Generator_UserColumnName="Cargo" type="xs:string" minOccurs="0" />
+              <xs:element name="ORDCO_PesoTotal" msprop:Generator_ColumnVarNameInTable="columnORDCO_PesoTotal" msprop:Generator_ColumnPropNameInRow="ORDCO_PesoTotal" msprop:Generator_ColumnPropNameInTable="ORDCO_PesoTotalColumn" msprop:Generator_UserColumnName="ORDCO_PesoTotal" type="xs:string" minOccurs="0" />
+              <xs:element name="ORDCO_Observaciones" msprop:Generator_ColumnVarNameInTable="columnORDCO_Observaciones" msprop:Generator_ColumnPropNameInRow="ORDCO_Observaciones" msprop:Generator_ColumnPropNameInTable="ORDCO_ObservacionesColumn" msprop:Generator_UserColumnName="ORDCO_Observaciones" type="xs:string" minOccurs="0" />
+              <xs:element name="TIPOS_CodTipoMoneda" msprop:Generator_ColumnVarNameInTable="columnTIPOS_CodTipoMoneda" msprop:Generator_ColumnPropNameInRow="TIPOS_CodTipoMoneda" msprop:Generator_ColumnPropNameInTable="TIPOS_CodTipoMonedaColumn" msprop:Generator_UserColumnName="TIPOS_CodTipoMoneda" type="xs:string" minOccurs="0" />
+              <xs:element name="TIPOS_CodTipoPago" msprop:Generator_ColumnVarNameInTable="columnTIPOS_CodTipoPago" msprop:Generator_ColumnPropNameInRow="TIPOS_CodTipoPago" msprop:Generator_ColumnPropNameInTable="TIPOS_CodTipoPagoColumn" msprop:Generator_UserColumnName="TIPOS_CodTipoPago" type="xs:string" minOccurs="0" />
+              <xs:element name="ALMAC_Direccion" msprop:Generator_ColumnVarNameInTable="columnALMAC_Direccion" msprop:Generator_ColumnPropNameInRow="ALMAC_Direccion" msprop:Generator_ColumnPropNameInTable="ALMAC_DireccionColumn" msprop:Generator_UserColumnName="ALMAC_Direccion" type="xs:string" minOccurs="0" />
+            </xs:sequence>
+          </xs:complexType>
+        </xs:element>
+        <xs:element name="OrdenCompraDetalle" msprop:Generator_UserTableName="OrdenCompraDetalle" msprop:Generator_RowEvArgName="OrdenCompraDetalleRowChangeEvent" msprop:Generator_TableVarName="tableOrdenCompraDetalle" msprop:Generator_TablePropName="OrdenCompraDetalle" msprop:Generator_RowDeletingName="OrdenCompraDetalleRowDeleting" msprop:Generator_RowChangingName="OrdenCompraDetalleRowChanging" msprop:Generator_RowDeletedName="OrdenCompraDetalleRowDeleted" msprop:Generator_RowEvHandlerName="OrdenCompraDetalleRowChangeEventHandler" msprop:Generator_TableClassName="OrdenCompraDetalleDataTable" msprop:Generator_RowChangedName="OrdenCompraDetalleRowChanged" msprop:Generator_RowClassName="OrdenCompraDetalleRow">
+          <xs:complexType>
+            <xs:sequence>
+              <xs:element name="ORDCD_Item" msprop:Generator_ColumnVarNameInTable="columnORDCD_Item" msprop:Generator_ColumnPropNameInRow="ORDCD_Item" msprop:Generator_ColumnPropNameInTable="ORDCD_ItemColumn" msprop:Generator_UserColumnName="ORDCD_Item" type="xs:int" />
+              <xs:element name="ARTIC_Descripcion" msprop:Generator_ColumnVarNameInTable="columnARTIC_Descripcion" msprop:Generator_ColumnPropNameInRow="ARTIC_Descripcion" msprop:Generator_ColumnPropNameInTable="ARTIC_DescripcionColumn" msprop:Generator_UserColumnName="ARTIC_Descripcion" type="xs:string" minOccurs="0" />
+              <xs:element name="ORDCD_Cantidad" msprop:Generator_ColumnVarNameInTable="columnORDCD_Cantidad" msprop:Generator_ColumnPropNameInRow="ORDCD_Cantidad" msprop:Generator_ColumnPropNameInTable="ORDCD_CantidadColumn" msprop:Generator_UserColumnName="ORDCD_Cantidad" type="xs:decimal" minOccurs="0" />
+              <xs:element name="ORDCD_PrecioUnitario" msprop:Generator_ColumnVarNameInTable="columnORDCD_PrecioUnitario" msprop:Generator_ColumnPropNameInRow="ORDCD_PrecioUnitario" msprop:Generator_ColumnPropNameInTable="ORDCD_PrecioUnitarioColumn" msprop:Generator_UserColumnName="ORDCD_PrecioUnitario" type="xs:decimal" minOccurs="0" />
+              <xs:element name="ORDCD_SubImporteCompra" msprop:Generator_ColumnVarNameInTable="columnORDCD_SubImporteCompra" msprop:Generator_ColumnPropNameInRow="ORDCD_SubImporteCompra" msprop:Generator_ColumnPropNameInTable="ORDCD_SubImporteCompraColumn" msprop:Generator_UserColumnName="ORDCD_SubImporteCompra" type="xs:decimal" minOccurs="0" />
+              <xs:element name="Codigo" msprop:Generator_ColumnVarNameInTable="columnCodigo" msprop:Generator_ColumnPropNameInRow="Codigo" msprop:Generator_ColumnPropNameInTable="CodigoColumn" msprop:Generator_UserColumnName="Codigo" type="xs:string" />
+            </xs:sequence>
+          </xs:complexType>
+        </xs:element>
+      </xs:choice>
+    </xs:complexType>
+    <xs:unique name="Constraint1" msdata:PrimaryKey="true">
+      <xs:selector xpath=".//mstns:OrdenCompra" />
+      <xs:field xpath="mstns:Codigo" />
+    </xs:unique>
+    <xs:unique name="OrdenCompraDetalle_Constraint1" msdata:ConstraintName="Constraint1" msdata:PrimaryKey="true">
+      <xs:selector xpath=".//mstns:OrdenCompraDetalle" />
+      <xs:field xpath="mstns:ORDCD_Item" />
+      <xs:field xpath="mstns:Codigo" />
+    </xs:unique>
+  </xs:element>
+  <xs:annotation>
+    <xs:appinfo>
+      <msdata:Relationship name="OrdenCompra_OrdenCompraDetalle" msdata:parent="OrdenCompra" msdata:child="OrdenCompraDetalle" msdata:parentkey="Codigo" msdata:childkey="Codigo" msprop:Generator_UserChildTable="OrdenCompraDetalle" msprop:Generator_ChildPropName="GetOrdenCompraDetalleRows" msprop:Generator_UserRelationName="OrdenCompra_OrdenCompraDetalle" msprop:Generator_RelationVarName="relationOrdenCompra_OrdenCompraDetalle" msprop:Generator_UserParentTable="OrdenCompra" msprop:Generator_ParentPropName="OrdenCompraRow" />
+    </xs:appinfo>
+  </xs:annotation>
+</xs:schema>

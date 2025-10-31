@@ -1,0 +1,195 @@
+﻿Imports ACBLogistica
+Imports ACELogistica
+Imports ACEVentas
+Imports ACBVentas
+Imports ACFramework
+Imports ACFrameworkC1
+Imports ACReporteador
+
+Imports Microsoft.Practices.Unity
+Imports Microsoft.Practices.Unity.Configuration
+Imports C1.Win.C1FlexGrid
+Imports C1.C1Preview
+Imports System.Text.RegularExpressions
+
+Public Class RComprasXArticulo
+#Region " Variables "
+   Private managerGenerarReportes As BGenerarReportes
+
+   Private _subtitulo2 As String
+   Private _subtitulo1 As String
+
+   Private m_reporte As DataTable
+
+   Private bs_reporte As BindingSource
+
+   Private Ayuda As CProductos
+#End Region
+
+#Region " Propiedades "
+
+#End Region
+
+#Region " Constructores "
+   Public Sub New()
+      ' This call is required by the Windows Form Designer.
+      InitializeComponent()
+      Try
+         managerGenerarReportes = New BGenerarReportes
+
+         FormatearGrilla()
+      Catch ex As Exception
+         ACControles.ACDialogos.ACMostrarMensajeError("Error: " & Convert.ToString(Me.Text), "No se puede cargar los controles iniciales", ex)
+      End Try
+   End Sub
+#End Region
+
+#Region " Metodos "
+   Private Sub AyudaArticulos(ByVal x_cadenas As String, ByVal x_campo As String)
+      Try
+         If IsNothing(Ayuda) Then
+            Ayuda = New CProductos(CProductos.Origen.Cotizaciones, x_cadenas, x_campo) With {.StartPosition = FormStartPosition.CenterScreen}
+         End If
+         Me.KeyPreview = False
+         If Ayuda.ShowDialog() = Windows.Forms.DialogResult.OK Then
+            actxaProdCodigo.Text = Ayuda.Articulo.ARTIC_Codigo
+            actxaProdDescripcion.Text = Ayuda.Articulo.ARTIC_Descripcion
+            '' Cargar datos adicionales del proveedor
+            setRol(Constantes.Seteo.Desactivar)
+            btnCargar.Focus()
+         End If
+      Catch ex As Exception
+         ACControles.ACDialogos.ACMostrarMensajeError(String.Format("Error: {0}", Me.Text), "Ocurrio un error en el proceso cargar productos", ex)
+      End Try
+   End Sub
+
+   Private Sub setRol(ByVal x_opcion As Constantes.Seteo)
+      Try
+         actxaProdCodigo.ReadOnly = IIf(x_opcion = Constantes.Seteo.Activar, False, True)
+         actxaProdCodigo.ACActivarAyuda = IIf(x_opcion = Constantes.Seteo.Activar, True, False)
+         actxaProdCodigo.ACAyuda.Enabled = IIf(x_opcion = Constantes.Seteo.Activar, True, False)
+         actxaProdDescripcion.ReadOnly = IIf(x_opcion = Constantes.Seteo.Activar, False, True)
+         actxaProdDescripcion.ACActivarAyuda = IIf(x_opcion = Constantes.Seteo.Activar, True, False)
+         actxaProdDescripcion.ACAyuda.Enabled = IIf(x_opcion = Constantes.Seteo.Activar, True, False)
+      Catch ex As Exception
+         Throw ex
+      End Try
+   End Sub
+
+   Private Sub UpdateTotals()
+      Try
+         c1grdBusqueda.Subtotal(AggregateEnum.Clear)
+         Dim c As Integer
+         For c = 3 To c1grdBusqueda.Cols.Count - 2
+            If Not c = 5 Then
+               c1grdBusqueda.Subtotal(AggregateEnum.Sum, 0, -1, c, "Total")
+            End If
+         Next
+      Catch ex As Exception
+         Throw ex
+      End Try
+   End Sub
+
+#Region " Utilitarios "
+   Private Sub formatearGrilla()
+      Dim _index As Integer = 1
+      Try
+         ACFrameworkC1.ACUtilitarios.ACFormatearGrilla(c1grdBusqueda, 1, 1, 9, 1, 0)
+         ACFrameworkC1.ACUtilitarios.ACAgregarColumna(c1grdBusqueda, _index, "Fecha", "Fecha", "Fecha", 170, True, False, "System.String", "") : _index += 1
+         ACFrameworkC1.ACUtilitarios.ACAgregarColumna(c1grdBusqueda, _index, "Documento", "Documento", "Documento", 150, True, False, "System.String", "") : _index += 1
+         ACFrameworkC1.ACUtilitarios.ACAgregarColumna(c1grdBusqueda, _index, "Peso", "Peso", "Peso", 100, True, False, "System.Decimal", Parametros.GetParametro(EParametros.TipoParametros.pg_FMondo4d)) : _index += 1
+         ACFrameworkC1.ACUtilitarios.ACAgregarColumna(c1grdBusqueda, _index, "Cantidad", "Cantidad", "Cantidad", 85, True, False, "System.Decimal", Parametros.GetParametro(EParametros.TipoParametros.pg_FMondo2d)) : _index += 1
+         ACFrameworkC1.ACUtilitarios.ACAgregarColumna(c1grdBusqueda, _index, "Moneda", "Moneda", "Moneda", 150, True, False, "System.String") : _index += 1
+         ACFrameworkC1.ACUtilitarios.ACAgregarColumna(c1grdBusqueda, _index, "Importe", "Importe", "Importe", 85, True, False, "System.Decimal", Parametros.GetParametro(EParametros.TipoParametros.pg_FMondo2d)) : _index += 1
+         ACFrameworkC1.ACUtilitarios.ACAgregarColumna(c1grdBusqueda, _index, "Costo", "Costo", "Costo", 85, True, False, "System.Decimal", Parametros.GetParametro(EParametros.TipoParametros.pg_FMondo2d)) : _index += 1
+         ACFrameworkC1.ACUtilitarios.ACAgregarColumna(c1grdBusqueda, _index, "Proveedor", "ENTID_RazonSocial", "ENTID_RazonSocial", 250, True, False, "System.String") : _index += 1
+
+         c1grdBusqueda.AllowEditing = False
+         c1grdBusqueda.AllowResizing = AllowResizingEnum.None
+         c1grdBusqueda.Styles.Alternate.BackColor = Color.LightGray
+         c1grdBusqueda.Styles.Fixed.TextAlign = TextAlignEnum.CenterCenter
+         c1grdBusqueda.Styles.Highlight.BackColor = Color.Gray
+         c1grdBusqueda.SelectionMode = SelectionModeEnum.Row
+         c1grdBusqueda.SubtotalPosition = SubtotalPositionEnum.BelowData
+         c1grdBusqueda.Tree.Column = 1
+         c1grdBusqueda.AutoResize = False
+
+         Dim s As CellStyle = c1grdBusqueda.Styles(CellStyleEnum.Subtotal0)
+         s.BackColor = Color.Black
+         s.ForeColor = Color.White
+         s.Font = New Font(c1grdBusqueda.Font, FontStyle.Bold)
+
+         s = c1grdBusqueda.Styles(CellStyleEnum.Subtotal1)
+         s.BackColor = Color.DarkBlue
+         s.ForeColor = Color.White
+         s = c1grdBusqueda.Styles(CellStyleEnum.Subtotal2)
+         s.BackColor = Color.DarkRed
+         s.ForeColor = Color.White
+
+         'more setup
+         c1grdBusqueda.AllowDragging = AllowDraggingEnum.None
+         c1grdBusqueda.AllowEditing = False
+         c1grdBusqueda.Cols(0).WidthDisplay \= 3
+      Catch ex As Exception
+         ACControles.ACDialogos.ACMostrarMensajeError(String.Format("Error: {0}", Text), "No se puede dar formato a la grilla", ex)
+      End Try
+   End Sub
+#End Region
+#End Region
+
+#Region " Metodos de Controles"
+   Private Sub btnCargar_Click(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles btnCargar.Click
+      Try
+         Dim x_artic_codigo As String = actxaProdCodigo.Text
+         bs_reporte = New BindingSource
+         If Not managerGenerarReportes.ComprasXArticulo(x_artic_codigo, AcFecha.ACDtpFecha_De.Value.Date, AcFecha.ACDtpFecha_A.Value.Date.AddDays(1), m_reporte) Then
+            m_reporte = New DataTable()
+         End If
+         bs_reporte.DataSource = m_reporte
+         c1grdBusqueda.DataSource = bs_reporte
+         bnavNavegador.BindingSource = bs_reporte
+         _subtitulo1 = String.Format("Articulo : {0}.", actxaProdDescripcion.Text)
+         _subtitulo2 = String.Format("Fechas : Desde {0} Hasta {1}.", AcFecha.ACDtpFecha_De.Value.Date.ToString("dd/MM/yyyy"), AcFecha.ACDtpFecha_A.Value.Date.ToString("dd/MM/yyyy"))
+         UpdateTotals()
+      Catch ex As Exception
+         ACControles.ACDialogos.ACMostrarMensajeError(String.Format("Error: {0}", Me.Text), "Ocurrio un error en el proceso cargar Reporte", ex)
+      End Try
+   End Sub
+
+   Private Sub btnClean_Click(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles btnClean.Click
+      Try
+         actxaProdCodigo.Clear()
+         actxaProdDescripcion.Clear()
+         setRol(Constantes.Seteo.Activar)
+      Catch ex As Exception
+         ACControles.ACDialogos.ACMostrarMensajeError(String.Format("Error: {0}", Me.Text), "Ocurrio un error en el proceso Limpiar Entidad", ex)
+      End Try
+   End Sub
+
+   Private Sub tsbtnprevisualizar_Click(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles tsbtnprevisualizar.Click
+      Try
+         Utilitarios.reportToScreen(c1grdBusqueda, "Compras por Articulo", "Reporte", "", DateTime.Now, New Printing.PaperSize("A4", 827, 1169), New Printing.Margins(40, 40, 120, 40), _subtitulo1, _subtitulo2, True, True)
+      Catch ex As Exception
+         ACControles.ACDialogos.ACMostrarMensajeError(String.Format("Error: {0}", Me.Text), "Ocurrio un error en el proceso Previsualizar", ex)
+      End Try
+   End Sub
+
+#Region " Ayudas "
+
+   Private Sub actxaProdDescripcion_ACAyudaClick(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles actxaProdDescripcion.ACAyudaClick
+      Try
+         AyudaArticulos(actxaProdDescripcion.Text, "ARTIC_Descripcion")
+      Catch ex As Exception
+         Throw ex
+      End Try
+   End Sub
+   Private Sub actxaProdCodigo_ACAyudaClick(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles actxaProdCodigo.ACAyudaClick
+      Try
+         AyudaArticulos(actxaProdCodigo.Text, "ARTIC_Codigo")
+      Catch ex As Exception
+         Throw ex
+      End Try
+   End Sub
+#End Region
+#End Region
+End Class
