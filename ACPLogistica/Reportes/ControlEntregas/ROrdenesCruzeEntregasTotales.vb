@@ -1,11 +1,12 @@
-﻿Imports C1.Win.C1FlexGrid
-Imports ACFramework
-Imports DAConexion
-Imports System.Globalization
-Imports CrystalDecisions.Shared.Json
-Imports ACBLogistica
-Imports ACELogistica
+﻿Imports System.Globalization
 Imports System.Threading.Tasks
+Imports ACBLogistica
+ Imports ACELogistica
+'Imports ACEVentas
+Imports ACFramework
+Imports C1.Win.C1FlexGrid
+Imports CrystalDecisions.Shared.Json
+Imports DAConexion
 
 
 Public Class ROrdenesCruzeEntregasTotales
@@ -99,7 +100,7 @@ Public Class ROrdenesCruzeEntregasTotales
         Try
 
             ACFrameworkC1.ACUtilitarios.ACFormatearGrilla(c1grdReporte, 1, 1, 11, 1)
-               ACFrameworkC1.ACUtilitarios.ACAgregarColumna(c1grdReporte, _index, "Fecha.Doc", "ORDEN_Codorigen", "ORDEN_Codorigen", 150, True, False, "System.String") : _index += 1
+               ACFrameworkC1.ACUtilitarios.ACAgregarColumna(c1grdReporte, _index, "Fecha.Doc", "ORDET_FecCrea", "ORDET_FecCrea", 150, True, False,"System.DateTime", Parametros.GetParametro(ACEVentas.EParametros.TipoParametros.pg_FormatoFecha)) : _index += 1
         
             ACFrameworkC1.ACUtilitarios.ACAgregarColumna(c1grdReporte, _index, "Nº Orden LLegada", "ORDEN_Codorigen", "ORDEN_Codorigen", 150, True, False, "System.String") : _index += 1
             ACFrameworkC1.ACUtilitarios.ACAgregarColumna(c1grdReporte, _index, "Nº Orden Origen", "ORDEN_Codigo", "ORDEN_Codigo", 150, True, False, "System.String") : _index += 1
@@ -141,8 +142,8 @@ Public Class ROrdenesCruzeEntregasTotales
         Dim _index = 1
         _index = 1
         ACFrameworkC1.ACUtilitarios.ACFormatearGrilla(C1FlexGridNoEncontrados, 1, 1, 11, 1)
-            ACFrameworkC1.ACUtilitarios.ACAgregarColumna(c1grdReporte, _index, "Fecha.Doc", "ORDEN_Codorigen", "ORDEN_Codorigen", 150, True, False, "System.String") : _index += 1
-        
+
+          ACFrameworkC1.ACUtilitarios.ACAgregarColumna(c1grdReporte, _index, "Fecha.Doc", "ORDET_FecCrea", "ORDET_FecCrea", 150, True, False,"System.DateTime", Parametros.GetParametro(ACEVentas.EParametros.TipoParametros.pg_FormatoFecha)) : _index += 1      
         ACFrameworkC1.ACUtilitarios.ACAgregarColumna(C1FlexGridNoEncontrados, _index, "Nº Orden LLegada", "ORDEN_Codorigen", "ORDEN_Codorigen", 150, True, False, "System.String") : _index += 1
         ACFrameworkC1.ACUtilitarios.ACAgregarColumna(C1FlexGridNoEncontrados, _index, "Nº Orden Origen", "ORDEN_Codigo", "ORDEN_Codigo", 150, True, False, "System.String") : _index += 1
         ACFrameworkC1.ACUtilitarios.ACAgregarColumna(C1FlexGridNoEncontrados, _index, "N° Factura", "DOCVE_Codigo", "DOCVE_Codigo", 150, True, False, "System.String") : _index += 1
@@ -217,13 +218,17 @@ Public Class ROrdenesCruzeEntregasTotales
 
         Try
             Dim bs_almacenesDestino = New BindingSource
-            Colecciones.GetPuntosVenta()
+            Colecciones.GetPuntosVentaExceptuandoPuntoLocal()
 
 
             If (GApp.EmpresaRUC = "20100241022" Or GApp.EmpresaRUC = "20100241022 ") Then
                 Dim listaFinal = Colecciones.PuntosVenta.
-        Where(Function(p) p.PVENT_Activo = True AndAlso p.SUCUR_Id <> 3 AndAlso GApp.ESucursal.SUCUR_Id AndAlso p.PVENT_Id <> 9 AndAlso p.PVENT_Id <> 1 AndAlso p.PVENT_Id <> 7 AndAlso p.PVENT_Id <> 13).
+        Where(Function(p) p.PVENT_Activo = True AndAlso p.SUCUR_Id <> 3 AndAlso p.PVENT_Id <> 9 AndAlso p.PVENT_Id <> 1 AndAlso p.PVENT_Id <> 7 AndAlso p.PVENT_Id <> 13 ).
         ToList()
+
+                  '     Dim listaFinal = Colecciones.PuntosVenta.
+        'Where(Function(p) p.PVENT_Activo = True AndAlso p.SUCUR_Id <> 3 AndAlso GApp.ESucursal.SUCUR_Id AndAlso p.PVENT_Id <> 9 AndAlso p.PVENT_Id <> 1 AndAlso p.PVENT_Id <> 7 AndAlso p.PVENT_Id <> 13 And p.PVENT_Id <> GApp.ESucursal.SUCUR_Id <> p.SUCUR_Id).
+        'ToList()
 
                 bs_almacenesDestino.DataSource = listaFinal
             Else
@@ -654,6 +659,7 @@ Public Class ROrdenesCruzeEntregasTotales
             If dictExternos.ContainsKey(clave) Then
                 Dim externo = dictExternos(clave)
                 resultado.Add(New EDIST_OrdenesDetalle With {
+                    .ORDET_FecCrea  = local.ORDET_FecCrea,
             .DOCVE_Codigo = local.DOCVE_Codigo,
             .ORDEN_Codigo = local.ORDEN_Codigo,
             .ORDET_Item = local.ORDET_Item,
@@ -711,6 +717,7 @@ Public Class ROrdenesCruzeEntregasTotales
             If dictLocal.ContainsKey(clave) Then
                 Dim interno = dictLocal(clave)
                 resultado.Add(New EDIST_OrdenesDetalle With {
+                    .ORDET_FecCrea = Externa.ORDET_FecCrea,
             .DOCVE_Codigo = Externa.DOCVE_Codigo,
             .ORDEN_Codigo = Externa.ORDEN_Codigo,
             .ORDET_Item = Externa.ORDET_Item,

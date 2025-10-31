@@ -914,4 +914,6 @@ End Sub
         Dim frmVentasvsEntregasTotales As New RVentasVSEntregasTotales() With {.MdiParent = Me, .StartPosition = FormStartPosition.CenterScreen, .WindowState = FormWindowState.Maximized}
         frmVentasvsEntregasTotales.Show()
     End Sub
+
+   
 End Class

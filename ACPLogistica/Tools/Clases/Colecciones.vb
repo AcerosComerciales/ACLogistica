@@ -186,6 +186,7 @@ Public Class Colecciones
                               , New ACCampos() {New ACCampos("ALMAC_Descripcion", "ALMAC_Nombre")}))
             Dim _where As New Hashtable()
             _where.Add("PVENT_Descripcion", New ACWhere("", ACWhere.TipoWhere._Like))
+            
             If managerPuntosVenta.CargarTodos(_Join, _where) Then
                 m_listPuntoVenta = New List(Of EPuntoVenta)(managerPuntosVenta.ListPuntoVenta)
             Else
@@ -195,6 +196,32 @@ Public Class Colecciones
             Throw New Exception(String.Format("Error: No se han podido obtener las sucursales.{0}[{1}]", Environment.NewLine, ex.Message))
         End Try
     End Sub
+
+       Public Shared Sub GetPuntosVentaExceptuandoPuntoLocal()
+        Try
+            Dim managerPuntosVenta As BPuntoVenta
+            managerPuntosVenta = New BPuntoVenta
+            Dim _Join As New List(Of ACJoin)()
+            _Join.Add(New ACJoin(ESucursales.Esquema, ESucursales.Tabla, ACJoin.TipoJoin.Inner _
+                              , New ACCampos() {New ACCampos("SUCUR_Id", "SUCUR_Id")} _
+                              , New ACCampos() {New ACCampos("SUCUR_Nombre", "SUCUR_Nombre")}))
+            _Join.Add(New ACJoin(EAlmacenes.Esquema, EAlmacenes.Tabla, ACJoin.TipoJoin.Inner _
+                              , New ACCampos() {New ACCampos("ALMAC_Id", "ALMAC_Id")} _
+                              , New ACCampos() {New ACCampos("ALMAC_Descripcion", "ALMAC_Nombre")}))
+            Dim _where As New Hashtable()
+            _where.Add("PVENT_Descripcion", New ACWhere("", ACWhere.TipoWhere._Like))
+            _where.Add("SUCUR_Id",New ACWhere(GApp.ESucursal.SUCUR_Id,ACWhere.TipoWhere.Diferente))
+            
+            If managerPuntosVenta.CargarTodos(_Join, _where) Then
+                m_listPuntoVenta = New List(Of EPuntoVenta)(managerPuntosVenta.ListPuntoVenta)
+            Else
+                m_listPuntoVenta = New List(Of EPuntoVenta)()
+            End If
+        Catch ex As Exception
+            Throw New Exception(String.Format("Error: No se han podido obtener las sucursales.{0}[{1}]", Environment.NewLine, ex.Message))
+        End Try
+    End Sub
+
 
     'EXCEPTION DISCRIMAOOMP POR ALMACEN EN VEZ DE PUNTO VENTA SPOR ORIGEN 
 

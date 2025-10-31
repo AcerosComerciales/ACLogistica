@@ -180,15 +180,15 @@ Partial Class Principal
         Me.tsbtnShowHide = New System.Windows.Forms.ToolStripButton()
         Me.ToolStripSeparator9 = New System.Windows.Forms.ToolStripSeparator()
         Me.ToolStrip1 = New System.Windows.Forms.ToolStrip()
-        Me.mnuPrincipal.SuspendLayout()
-        Me.tsMenuBar.SuspendLayout()
-        Me.statusStrip1.SuspendLayout()
-        Me.toolRecientes.SuspendLayout()
-        Me.SuspendLayout()
+        Me.mnuPrincipal.SuspendLayout
+        Me.tsMenuBar.SuspendLayout
+        Me.statusStrip1.SuspendLayout
+        Me.toolRecientes.SuspendLayout
+        Me.SuspendLayout
         '
         'mnuPrincipal
         '
-        Me.mnuPrincipal.Font = New System.Drawing.Font("Segoe UI", 9.0!)
+        Me.mnuPrincipal.Font = New System.Drawing.Font("Segoe UI", 9!)
         Me.mnuPrincipal.Items.AddRange(New System.Windows.Forms.ToolStripItem() {Me.ArchivoToolStripMenuItem, Me.AdministracionToolStripMenuItem, Me.AbastecimientosToolStripMenuItem, Me.ControlToolStripMenuItem, Me.ReportesToolStripMenuItem, Me.MantenimientosToolStripMenuItem, Me.VentanasToolStripMenuItem, Me.AyudaToolStripMenuItem})
         Me.mnuPrincipal.Location = New System.Drawing.Point(0, 0)
         Me.mnuPrincipal.MdiWindowListItem = Me.VentanasToolStripMenuItem
@@ -1087,7 +1087,7 @@ Partial Class Principal
         '
         'tsMenuBar
         '
-        Me.tsMenuBar.Font = New System.Drawing.Font("Segoe UI", 9.0!)
+        Me.tsMenuBar.Font = New System.Drawing.Font("Segoe UI", 9!)
         Me.tsMenuBar.ImageScalingSize = New System.Drawing.Size(32, 32)
         Me.tsMenuBar.Items.AddRange(New System.Windows.Forms.ToolStripItem() {Me.ToolStripButton1, Me.tsbtnGenerarMenu})
         Me.tsMenuBar.Location = New System.Drawing.Point(0, 24)
@@ -1099,7 +1099,7 @@ Partial Class Principal
         'ToolStripButton1
         '
         Me.ToolStripButton1.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image
-        Me.ToolStripButton1.Image = CType(resources.GetObject("ToolStripButton1.Image"), System.Drawing.Image)
+        Me.ToolStripButton1.Image = CType(resources.GetObject("ToolStripButton1.Image"),System.Drawing.Image)
         Me.ToolStripButton1.ImageTransparentColor = System.Drawing.Color.Magenta
         Me.ToolStripButton1.Name = "ToolStripButton1"
         Me.ToolStripButton1.Size = New System.Drawing.Size(36, 36)
@@ -1126,9 +1126,9 @@ Partial Class Principal
         '
         'tsslPeriodo
         '
-        Me.tsslPeriodo.BorderSides = CType((((System.Windows.Forms.ToolStripStatusLabelBorderSides.Left Or System.Windows.Forms.ToolStripStatusLabelBorderSides.Top) _
-            Or System.Windows.Forms.ToolStripStatusLabelBorderSides.Right) _
-            Or System.Windows.Forms.ToolStripStatusLabelBorderSides.Bottom), System.Windows.Forms.ToolStripStatusLabelBorderSides)
+        Me.tsslPeriodo.BorderSides = CType((((System.Windows.Forms.ToolStripStatusLabelBorderSides.Left Or System.Windows.Forms.ToolStripStatusLabelBorderSides.Top)  _
+            Or System.Windows.Forms.ToolStripStatusLabelBorderSides.Right)  _
+            Or System.Windows.Forms.ToolStripStatusLabelBorderSides.Bottom),System.Windows.Forms.ToolStripStatusLabelBorderSides)
         Me.tsslPeriodo.Name = "tsslPeriodo"
         Me.tsslPeriodo.Size = New System.Drawing.Size(52, 19)
         Me.tsslPeriodo.Text = "Periodo"
@@ -1171,7 +1171,7 @@ Partial Class Principal
         '
         'tsbtnShowHide
         '
-        Me.tsbtnShowHide.CheckOnClick = True
+        Me.tsbtnShowHide.CheckOnClick = true
         Me.tsbtnShowHide.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image
         Me.tsbtnShowHide.Image = Global.ACPLogistica.My.Resources.Resources.showmenu
         Me.tsbtnShowHide.ImageTransparentColor = System.Drawing.Color.Magenta
@@ -1193,7 +1193,7 @@ Partial Class Principal
         Me.ToolStrip1.Size = New System.Drawing.Size(32, 481)
         Me.ToolStrip1.TabIndex = 16
         Me.ToolStrip1.Text = "ToolStrip1"
-        Me.ToolStrip1.Visible = False
+        Me.ToolStrip1.Visible = false
         '
         'Principal
         '

@@ -106,14 +106,15 @@ Partial Public Class DDIST_Ordenes
                 Using rd = Await cmd.ExecuteReaderAsync(ct).ConfigureAwait(False)
                     While Await rd.ReadAsync(ct).ConfigureAwait(False)
                         lista.Add(New EDIST_OrdenesDetalle With {
-                            .ORDEN_Codigo = rd.GetString(0),
-                            .DOCVE_Codigo = rd.GetString(1),
-                            .ARTIC_Codigo = rd.GetString(2),
-                            .ORDET_Cantidad = rd.GetDecimal(3),
-                            .ORDET_CantidadEntregada = rd.GetDecimal(4),
-                            .ARTIC_Descripcion = rd.GetString(5),
-                            .ORDET_Item = rd.GetInt16(6),
-                            .ORDEN_Codorigen = rd.GetString(7)
+                            .ORDET_FecCrea = rd.GetDateTime(0),
+                             .ORDEN_Codigo = rd.GetString(1),
+                            .DOCVE_Codigo = rd.GetString(2),
+                            .ARTIC_Codigo = rd.GetString(3),
+                            .ORDET_Cantidad = rd.GetDecimal(4),
+                            .ORDET_CantidadEntregada = rd.GetDecimal(5),
+                            .ARTIC_Descripcion = rd.GetString(6),
+                            .ORDET_Item = rd.GetInt16(7),
+                            .ORDEN_Codorigen = rd.GetString(8)
                                         })
                         '.Metros = rd.GetDecimal(5)
 
@@ -163,14 +164,15 @@ Partial Public Class DDIST_Ordenes
                 Using rd = Await cmd.ExecuteReaderAsync(ct).ConfigureAwait(False)
                     While Await rd.ReadAsync(ct).ConfigureAwait(False)
                         lista.Add(New EDIST_OrdenesDetalle With {
-                            .ORDEN_Codigo = rd.GetString(0),
-                            .DOCVE_Codigo = rd.GetString(1),
-                            .ARTIC_Codigo = rd.GetString(2),
-                            .ORDET_Cantidad = rd.GetDecimal(3),
-                            .ORDET_CantidadEntregada = rd.GetDecimal(4),
-                            .ARTIC_Descripcion = rd.GetString(5),
-                            .ORDET_Item = rd.GetInt16(6),
-                            .ORDEN_Codorigen = rd.GetString(7)
+                            .ORDET_FecCrea  = rd.GetDateTime(0),
+                            .ORDEN_Codigo = rd.GetString(1),
+                            .DOCVE_Codigo = rd.GetString(2),
+                            .ARTIC_Codigo = rd.GetString(3),
+                            .ORDET_Cantidad = rd.GetDecimal(4),
+                            .ORDET_CantidadEntregada = rd.GetDecimal(5),
+                            .ARTIC_Descripcion = rd.GetString(6),
+                            .ORDET_Item = rd.GetInt16(7),
+                            .ORDEN_Codorigen = rd.GetString(8)
                                         })
                         '.Metros = rd.GetDecimal(5)
 
