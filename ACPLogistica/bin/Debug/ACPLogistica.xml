@@ -1,0 +1,1096 @@
+﻿<?xml version="1.0"?>
+<doc>
+<assembly>
+<name>
+ACPLogistica
+</name>
+</assembly>
+<members>
+<member name="T:ACPLogistica.DSArreglos.CTRL_ArreglosDataTable">
+	<summary>
+Represents the strongly named DataTable class.
+</summary>
+</member><member name="T:ACPLogistica.DSArreglos.CTRL_ArreglosDetalleDataTable">
+	<summary>
+Represents the strongly named DataTable class.
+</summary>
+</member><member name="T:ACPLogistica.DSArreglos.CTRL_ArreglosRow">
+	<summary>
+Represents strongly named DataRow class.
+</summary>
+</member><member name="T:ACPLogistica.DSArreglos.CTRL_ArreglosDetalleRow">
+	<summary>
+Represents strongly named DataRow class.
+</summary>
+</member><member name="T:ACPLogistica.DSArreglos.CTRL_ArreglosRowChangeEvent">
+	<summary>
+Row event argument class
+</summary>
+</member><member name="T:ACPLogistica.DSArreglos.CTRL_ArreglosDetalleRowChangeEvent">
+	<summary>
+Row event argument class
+</summary>
+</member><member name="T:ACPLogistica.DSArreglos">
+	<summary>
+Represents a strongly typed in-memory cache of data.
+</summary>
+</member><member name="T:ACPLogistica.DSKardexXArticulo.DTCabeceraDataTable">
+	<summary>
+Represents the strongly named DataTable class.
+</summary>
+</member><member name="T:ACPLogistica.DSKardexXArticulo.DTDetalleDataTable">
+	<summary>
+Represents the strongly named DataTable class.
+</summary>
+</member><member name="T:ACPLogistica.DSKardexXArticulo.DTCabeceraRow">
+	<summary>
+Represents strongly named DataRow class.
+</summary>
+</member><member name="T:ACPLogistica.DSKardexXArticulo.DTDetalleRow">
+	<summary>
+Represents strongly named DataRow class.
+</summary>
+</member><member name="T:ACPLogistica.DSKardexXArticulo.DTCabeceraRowChangeEvent">
+	<summary>
+Row event argument class
+</summary>
+</member><member name="T:ACPLogistica.DSKardexXArticulo.DTDetalleRowChangeEvent">
+	<summary>
+Row event argument class
+</summary>
+</member><member name="T:ACPLogistica.DSKardexXArticulo">
+	<summary>
+Represents a strongly typed in-memory cache of data.
+</summary>
+</member><member name="M:ACPLogistica.Principal.#ctor">
+	<summary>
+ Base Desarrollo
+ 40975980%BDAcerosComer%ACERO%LOG%ACADMIN%192.168.30.5\SQL8%SA%varserv123%192.168.30.2\SQL8%
+ SYNRW8BVfll42tCZYPz8GqTofUZW3rUQzCpJ3pjpHa3iS1trBASX3sAzLhaObXlgaNV4seM8OngC41ir80hdPWeAkFg975uCKpo0UR2Gh2Zq1kIRyJTjS7xwIGROR1mLVxvJZpD8rRjn+24nretfCNtdBzin9ZvMv7tIceFBKZc=
+ 
+ Real
+ 40975980%BDACNet%VIRTU%LOG%ACAdmin%192.168.30.2\SQL8%Logistica%L0gistic4%192.168.30.2\SQL8%
+ GO+VgdNyiOGQIGqlTIYXFITmLEtVxiDH1qDHpQ3Fcpu3nGbDZCEBpqH1fOzNN95KkXbgZgY9s2ZMGJIKVoWH1s4mjiozkeCKejIKCgZovU/52J7e4J/AhNXyFySvwND/uW4vuFyeoPI2O6FMpZmwWQpwFPNmcCCuQ/jtlC+7mP0=
+ 
+ JL
+ 44274911%BDACNet%VIRTU%LOG%ACAdmin%192.168.30.2\SQL8%Logistica%L0gistic4%192.168.30.2\SQL8%
+ xFtG4TTWxGA1CC8ap4VkEVkb0aGoISmKrPjpSfUwBfyU3RpG8lbl3J2z/bdSyGjK2xPO02s+TaWwdezP5vCAW92ysBByA1NJ+yjOeq7MNs2pEUZiyH/EA/OMCZpYYkrAipurMSVYlkelnwvbRq4ZFTSBSUZ9+2pyyPO4OnTlURc=
+ 
+ AC-Mili
+ OAJEcYG2RbgEwUSr3APc5eFVVhqUMLWBQEeRNNUZzQGjhqEF7/+jq4WnV2oUs7E0GcfKnhoVnhGTdWUxAezYbQfQSNtFFIQ8Qmf4gcjrqKja+eMQDuG/Ci8LCgybcatsiuaBSTpmb77jLbYPgpKb8HHmLzQwon3le7J9qcneaq8=
+ 
+ Desarrollo
+ 40975980%BDACNet%VIRTU%LOG%ACAdmin%192.168.30.3\SQL8%Logistica%L0gistic4%192.168.30.3\SQL8%
+ m3JV8b0OWrifEPkgI7C+nPXQlUNb3nQT+tmKKyn/ED9H1O/+HvEeZsW1+K99HvR7p3zenBYKgHxqPwNeTsc9O2b/Z8sY8E5A4n+qJ1wTkOzldrfdsdMW1FlTyRV5bVEx7Eu3EIoltWtNv8D7yhUQrunDbT3h3nN1UUAJVKBUKUk=
+ 
+ DESARROLLO 30.3 Alex
+ bKpji/hn68F6Be1Or7ppeie3r4ykl4Y1E0ByeBOFU9h0sqw+FPyEmMHVRXK0Dwy7lEiJwHpMqcE5LKcQG6jfrtlGUcFBVsMGPsQCUThXc2ptdkYM1euAJd3Jqauutmp2M9O6WXT8X0IztlfTx/toUx4Agxj+BPmVo0pQee0lNYQ=
+ 
+ CUSCO 80.10 ALEX
+ t9LNiZuFq5YgIv1Om5HpGMAdxHZUQsvHA4VCNqZFUWPoM/VwymE23RVHNCjbnrWqSqZGPjUdNlKXerkA8zq+2tulHQfTrxsTzIRk4qcUeCcEdVKqTE70z7QfBpAxKs5t8hYpZbcj5OTrmyJpkYswX28O1G9Dt7jjZg6cSoTHnf4=
+ 
+ Local
+ 40975980%BDAcerosComerReal%VIRTU%LOG%ACAdmin%(Local)\SQL9%Logistica%L0gistic4%(Local)\SQL9%
+ VLgXx87NBqtNflyRC1ksMHBEkbNCSeuFkkmcRgZ6ZzqWs+0KvOOsi5itR6QNcTWJWjHjFcawMEkAbu6Keul8xQTkeqc3j+JWB1zzfX+Ao1hKYFtP/UGdcgOF6tTxXq09XZLo00mywF0Ai+1uL77RUcaC6UClsg6i7D9t30z2Vvo=
+ 
+ Privada
+ <RSAKeyValue><Modulus>zEqM6HLkF6wv2j+wSgfiFvdpKqAXTDTCqOxnW5R7mK4voDvH3sTOCjZ7eEkgh78ZQarTIXs0rOeGD+cSy8Msv2nape/UJp+ehmPmyEqEucxV/M6cOtT+F0+MbX3y4BKX/IntFhVkjKt8OXD2LHBhD4nPUIaePQoNJ5IUFwKLYn0=</Modulus><Exponent>AQAB</Exponent><P>/CWkisV1jWko18lbA89iO6EnZ1gn+o3YhqNra0R3vzQeImGDmIJcmN9k1S3D1nr8ktjhFnabVE6rrgfU1UyoAw==</P><Q>z2m0IcrQtLAKIf9R8YhYHn0MhzcY+/gi/o4gF1XR4utIxRxePmWr6AELIAaCd42IhjJ+HCKNbjmBe2jDjoQDfw==</Q><DP>DjFsPqd4w3n845Cg/+jnhaW/mxCaR38+he2i+UnEV83uOE824hnMbop8mYdW87a+iuGMYgBRJAC9pzEnqM4E0w==</DP><DQ>ksZhg1xLruG4efB842gxu3mQaQszcfNZiDu5N+oyOdt4RoxZoNw/91Dtt38DymhsyVJn7a8B2JN3LoanhG2lLw==</DQ><InverseQ>G82lJlLrAJMmtiJMnCpulBuhlXmYF7hG1CRQ3LoOc9/zCajA6iQkj08x5LrIjB9HNMW8+t+yh6TfZmOiwRHeEQ==</InverseQ><D>ZNqBCdh+Znlo/lPm0gVmRnRKBPMXzVVWrFJZDEsXYV7MwEwC9iUumrge6FkhqCJdc5/Dr4nFjX6XHo6zJsjp84qMHk6Q2dkRkwaWamP4XPukMpT5kvmTThTuHRYau9o2jZitUZtvmUf3tNZV+SkHkQDumtshzssoCP9Th5URFHk=</D></RSAKeyValue>
+ Publica
+ <RSAKeyValue><Modulus>zEqM6HLkF6wv2j+wSgfiFvdpKqAXTDTCqOxnW5R7mK4voDvH3sTOCjZ7eEkgh78ZQarTIXs0rOeGD+cSy8Msv2nape/UJp+ehmPmyEqEucxV/M6cOtT+F0+MbX3y4BKX/IntFhVkjKt8OXD2LHBhD4nPUIaePQoNJ5IUFwKLYn0=</Modulus><Exponent>AQAB</Exponent></RSAKeyValue>
+	</summary>
+	<remarks></remarks>
+</member><member name="M:ACPLogistica.TRegMerTransitoOrden.busqueda(System.String)">
+	<summary>
+ Ejecutar la busqueda de una cadena en la tabla Neumaticos
+ </summary>
+	<param name="x_cadena">Cadena objetivo</param>
+	<returns></returns>
+</member><member name="M:ACPLogistica.TRegMerTransitoOrden.cargarDatos">
+	<summary>
+ Cargar los datos en el control Visual C1FlexGrid
+ </summary>
+</member><member name="M:ACPLogistica.TRegMerTransitoOrden.MTCargarDatos">
+	<summary>
+ Cargar los datos en el control Visual C1FlexGrid
+ </summary>
+</member><member name="M:ACPLogistica.TRegMerTransitoOrden.busquedaDatos(System.String)">
+	<summary>
+ Ejecutar la busqueda 
+ </summary>
+	<param name="x_cadena">Cadena objetivo</param>
+	<returns></returns>
+</member><member name="M:ACPLogistica.TRegMerTransitoOrden.AsignarBinding">
+	<summary>
+ Realiza el enlace de los controles visuales con la clase esquema
+ </summary>
+</member><member name="M:ACPLogistica.Constantes.getEstado(ACPLogistica.Constantes.EstadoDocVta)">
+	<summary>
+ Estado de documentos de venta
+ </summary>
+	<param name="Estado"></param>
+	<returns></returns>
+	<remarks></remarks>
+</member><member name="M:ACPLogistica.Constantes.getEstado(ACPLogistica.Constantes.EstadoViajes)">
+	<summary>
+ Estados de Viajes
+ </summary>
+	<param name="Estado"></param>
+	<returns></returns>
+	<remarks></remarks>
+</member><member name="M:ACPLogistica.TCotCompras.setRol(ACPLogistica.Constantes.Seteo)">
+	<summary>
+ Activar los controles segun los permisos o el rol que tiene el cliente
+ </summary>
+	<param name="x_opcion"></param>
+	<remarks></remarks>
+</member><member name="M:ACPLogistica.TCotCompras.subirItem">
+	<summary>
+ Subir item a los controles para iniciar su edicion
+ </summary>
+	<remarks></remarks>
+</member><member name="M:ACPLogistica.TCotCompras.getFilterRol">
+	<summary>
+ Filtrar segun el rol
+ </summary>
+	<returns></returns>
+	<remarks></remarks>
+</member><member name="M:ACPLogistica.TCotCompras.addDetalle">
+	<summary>
+ Agregar un registro al detalle de compra
+ </summary>
+	<returns></returns>
+	<remarks></remarks>
+</member><member name="M:ACPLogistica.TCotCompras.getCampo">
+	<summary>
+ Obtener el campo por el cual se realizara la busqueda
+ </summary>
+	<returns></returns>
+	<remarks></remarks>
+</member><member name="M:ACPLogistica.TCotCompras.validar(System.String@)">
+	<summary>
+ validar los datos de la cotizacion de compra para inicial el procesa de grabado en la base de datos
+ </summary>
+	<param name="m_msg">Mensaje devuelto en caso de existir error</param>
+	<returns></returns>
+	<remarks></remarks>
+</member><member name="M:ACPLogistica.TCotCompras.ValidarDetalle(System.String@)">
+	<summary>
+ Validar el detalle del documento cotizacion de compra,valida si se han ingresado las cantidades adecuadamente
+ </summary>
+	<param name="m_msg">Mensaje devuelto con la descripción del error en caso de existir</param>
+	<returns></returns>
+	<remarks></remarks>
+</member><member name="M:ACPLogistica.TCotCompras.formatearGrilla">
+	<summary>
+ Dar formato a la grillas para la carga de datos
+ </summary>
+	<remarks></remarks>
+</member><member name="M:ACPLogistica.TCotCompras.setInstancia(ACFramework.ACUtilitarios.ACSetInstancia)">
+	<summary>
+ Dar la instancia de los objetos segun la opcion, activando y/o desactivando las interfaces
+ </summary>
+	<param name="_opcion"></param>
+	<remarks></remarks>
+</member><member name="M:ACPLogistica.TCotCompras.setInstanciaModificar(System.Boolean)">
+	<summary>
+ Dar instancia de activacion para la modificación de los registros
+ </summary>
+	<param name="x_opcion"></param>
+	<remarks></remarks>
+</member><member name="M:ACPLogistica.TCotCompras.setProducto(System.Boolean)">
+	<summary>
+ cargar los datos del articulo a los controles visuales
+ </summary>
+	<param name="x_opcion"></param>
+	<remarks></remarks>
+</member><member name="M:ACPLogistica.TCotCompras.cargarDatos">
+	<summary>
+ Cargar los datos en el control Visual C1FlexGrid
+ </summary>
+</member><member name="M:ACPLogistica.TCotCompras.AsignarBinding">
+	<summary>
+ Realiza el enlace de los controles visuales con la clase esquema
+ </summary>
+</member><member name="M:ACPLogistica.TCotCompras.AyudaEntidad(System.String,System.String,ACEVentas.EEntidades.TipoEntidad)">
+	<summary>
+ Cargar la ayuda de las entidades proveedor
+ </summary>
+	<param name="x_cadenas">Cadena de busqueda</param>
+	<param name="x_campo">campo al que va a ser referencia la busqueda</param>
+	<param name="x_opcion">opcion de tipo de entidad</param>
+	<remarks></remarks>
+</member><member name="M:ACPLogistica.TCotCompras.busqueda(System.String)">
+	<summary>
+ Realizar la busqueda de cotizaciones de compra
+ </summary>
+	<param name="x_cadena">Cadena de busqueda de cotizaciones</param>
+	<returns></returns>
+	<remarks></remarks>
+</member><member name="M:ACPLogistica.TCotCompras.grabarCotizCompra(System.String@)">
+	<summary>
+ Grabar la cotizacion de compra en la base de datos
+ </summary>
+	<param name="m_msg">Mensaje devuelto en caso de ocurrir alguna incidencia</param>
+	<returns></returns>
+	<remarks></remarks>
+</member><member name="M:ACPLogistica.TCotCompras.nuevaCotizacion">
+	<summary>
+ Crear nueva cotizacion de compra
+ </summary>
+	<remarks></remarks>
+</member><member name="M:ACPLogistica.TCotCompras.OrdenarPedidos(System.String)">
+	<summary>
+ Ordenar la grilla de cotizaciones de compra
+ </summary>
+	<param name="x_columna"></param>
+	<remarks></remarks>
+</member><member name="M:ACPLogistica.CRegCompras.cargarDatos">
+	<summary>
+ Cargar los datos en el control Visual C1FlexGrid
+ </summary>
+</member><member name="M:ACPLogistica.CRegCompras.busquedaDatos(System.String)">
+	<summary>
+ Ejecutar la busqueda de una cadena en la tabla Neumaticos
+ </summary>
+	<param name="x_cadena">Cadena objetivo</param>
+	<returns></returns>
+</member><member name="M:ACPLogistica.TRegIngMercaderia.busquedaDatos(System.String)">
+	<summary>
+ Ejecutar la busqueda de una cadena en la tabla Neumaticos
+ </summary>
+	<param name="x_cadena">Cadena objetivo</param>
+	<returns></returns>
+</member><member name="M:ACPLogistica.TRegIngMercaderia.MTCargarDatos">
+	<summary>
+ Cargar los datos en el control Visual C1FlexGrid
+ </summary>
+</member><member name="M:ACPLogistica.TConfIngreso.cargarDatos">
+	<summary>
+ Cargar los datos en el control Visual C1FlexGrid
+ </summary>
+</member><member name="M:ACPLogistica.TConfIngreso.busquedaDatos(System.String)">
+	<summary>
+ Ejecutar la busqueda de una cadena en la tabla Neumaticos
+ </summary>
+	<param name="x_cadena">Cadena objetivo</param>
+	<returns></returns>
+</member><member name="M:ACPLogistica.MDocsPago.cargarDatos">
+	<summary>
+ Cargar los datos en el control Visual C1FlexGrid
+ </summary>
+</member><member name="M:ACPLogistica.MDocsPago.AsignarBinding">
+	<summary>
+ Realiza el enlace de los controles visuales con la clase esquema
+ </summary>
+</member><member name="M:ACPLogistica.Colecciones.Inicializar(System.Boolean)">
+	<summary>
+ Inicializa la instancia de la clase Colecciones
+ </summary>
+	<returns>Retorna la instancia que se utilizara para llamar a Colecciones</returns>
+	<remarks>Una vez inicializada la clase Colecciones se podrán utilizar la colecciones que se carguen</remarks>
+</member><member name="M:ACPLogistica.TArreglos.AsignarBinding">
+	<summary>
+ Realiza el enlace de los controles visuales con la clase esquema
+ </summary>
+</member><member name="M:ACPLogistica.MEntidad.formatearGrilla">
+	<summary>
+ Dar Formato a la grilla de busqueda
+ </summary>
+	<remarks></remarks>
+</member><member name="M:ACPLogistica.MEntidad.cargarDatos">
+	<summary>
+ Cargar los datos en el control Visual C1FlexGrid
+ </summary>
+</member><member name="M:ACPLogistica.MEntidad.AsignarBinding">
+	<summary>
+ Realiza el enlace de los controles visuales con la clase esquema
+ </summary>
+</member><member name="M:ACPLogistica.MEntidad.busqueda(System.String)">
+	<summary>
+ Ejecutar la busqueda de una cadena en la tabla Neumaticos
+ </summary>
+	<param name="x_cadena">Cadena objetivo</param>
+	<returns></returns>
+</member><member name="M:ACPLogistica.MEntidad.acTool_ACBtnGrabar_Click(System.Object,System.EventArgs)">
+	<summary>
+ Grabar la entidad en la base de datos
+ </summary>
+	<param name="sender"></param>
+	<param name="e"></param>
+	<remarks></remarks>
+</member><member name="M:ACPLogistica.CInventarioRotativo.AsignarBinding">
+	<summary>
+ Realiza el enlace de los controles visuales con la clase esquema
+ </summary>
+</member><member name="M:ACPLogistica.TControlDescuentos.formatearGrilla">
+	<summary>
+ dar formato a las grillas del C1
+ </summary>
+	<remarks></remarks>
+</member><member name="M:ACPLogistica.TControlDescuentos.getCampo">
+	<summary>
+ Obtener el campo  por el cual se realizara la consulta
+ </summary>
+	<returns></returns>
+	<remarks></remarks>
+</member><member name="M:ACPLogistica.TControlDescuentos.cargarCombos">
+	<summary>
+ Cargar los combos con datos de la tablas tipos
+ </summary>
+	<remarks></remarks>
+</member><member name="M:ACPLogistica.TControlDescuentos.setInstancia(ACFramework.ACUtilitarios.ACSetInstancia)">
+	<summary>
+ Dar la instacia segun el proceso que se ejecuta, acttivando y desactivando controles de la interfaz
+ </summary>
+	<param name="_opcion"></param>
+	<remarks></remarks>
+</member><member name="M:ACPLogistica.TControlDescuentos.OrdenarPedidos(System.String)">
+	<summary>
+ procesos para ordener los resultados en la grilla de busqueda
+ </summary>
+	<param name="x_columna"></param>
+	<remarks></remarks>
+</member><member name="M:ACPLogistica.TControlDescuentos.cargarDatos">
+	<summary>
+ cargar los datos de la busqueda en la grilla
+ </summary>
+	<remarks></remarks>
+</member><member name="M:ACPLogistica.TControlDescuentos.cargar(System.String)">
+	<summary>
+ cargar los datos para realizar el control de descuentos
+ </summary>
+	<param name="x_entid_codigo"></param>
+	<returns></returns>
+	<remarks></remarks>
+</member><member name="M:ACPLogistica.TControlDescuentos.calcular">
+	<summary>
+  proceso para calcular los datos numericos de la interfaz
+ </summary>
+	<remarks></remarks>
+</member><member name="M:ACPLogistica.TControlDescuentos.busqueda(System.String,System.Boolean)">
+	<summary>
+ Proceso para realizar la busqueda en la tabla segun los criterio de la busqueda
+ </summary>
+	<param name="x_cadena"></param>
+	<param name="x_documento"></param>
+	<returns></returns>
+	<remarks></remarks>
+</member><member name="M:ACPLogistica.TControlDescuentos.AsignarBinding">
+	<summary>
+ enlazar controles visuales con las clases de la capa esquemas
+ </summary>
+	<remarks></remarks>
+</member><member name="M:ACPLogistica.TControlDescuentos.validar(System.String)">
+	<summary>
+ validar los datos antes de ser grabado en la base de datos
+ </summary>
+	<param name="x_msg"></param>
+	<returns></returns>
+	<remarks></remarks>
+</member><member name="M:ACPLogistica.TRegCompra.setRol(ACPLogistica.TRegCompra.Seteo)">
+	<summary>
+ Activar los controles segun los permisos o el rol que tiene el cliente
+ </summary>
+	<param name="x_opcion"></param>
+	<remarks></remarks>
+</member><member name="M:ACPLogistica.TCosteo.formatearGrilla">
+	<summary>
+ dar formato a la grilal de busqueda
+ </summary>
+	<remarks></remarks>
+</member><member name="M:ACPLogistica.TCosteo.formatearGrilla(System.Int32)">
+	<summary>
+ dar formato a la grilla de proceso de costeo
+ </summary>
+	<param name="x_descuentos"></param>
+	<remarks></remarks>
+</member><member name="M:ACPLogistica.TCosteo.setInstancia(ACFramework.ACUtilitarios.ACSetInstancia)">
+	<summary>
+ dar la instancia de control segun el proceso, activando y desactivando controles visuales
+ </summary>
+	<param name="_opcion"></param>
+	<remarks></remarks>
+</member><member name="M:ACPLogistica.TCosteo.cargarCombos">
+	<summary>
+ carga los combos de la interfaz visual de la clase tipos
+ </summary>
+	<remarks></remarks>
+</member><member name="M:ACPLogistica.TCosteo.validar(System.String@)">
+	<summary>
+ valida los datos a ser enviados a la base de datos, para verificar su integridad antes del proceso grabar
+ </summary>
+	<param name="m_msg"></param>
+	<returns></returns>
+	<remarks></remarks>
+</member><member name="M:ACPLogistica.TCosteo.ValidarDetalle(System.String@)">
+	<summary>
+ Recorre el detalle y verificar que cada servicio tenga su respectivo producto destino y su proveedor, asi
+ como los datos minimos del mismo
+ </summary>
+	<param name="m_msg"></param>
+	<returns></returns>
+	<remarks></remarks>
+</member><member name="M:ACPLogistica.TCosteo.getCampo">
+	<summary>
+ Obtener los campos para la busqueda
+ </summary>
+	<returns></returns>
+	<remarks></remarks>
+</member><member name="M:ACPLogistica.TCosteo.setGasto">
+	<summary>
+ asignar los valores respectivos a los gastos a los controles respectivos
+ </summary>
+	<remarks></remarks>
+</member><member name="M:ACPLogistica.TCosteo.setFlete">
+	<summary>
+  asignar los valores respectivos a los fletes a los controles respectivos
+ </summary>
+	<remarks></remarks>
+</member><member name="M:ACPLogistica.TCosteo.setServicios">
+	<summary>
+ asignar los valores a la interfaz de la clase servicios
+ </summary>
+	<remarks></remarks>
+</member><member name="M:ACPLogistica.TCosteo.AsignarBinding">
+	<summary>
+ crear el enlace de los objetos visuales y las clases de la capa esquemas
+ </summary>
+	<remarks></remarks>
+</member><member name="M:ACPLogistica.TCosteo.ABFletes">
+	<summary>
+ crear el enlace de los objetos visuales y las clases de la capa esquemas de los fletes
+ </summary>
+	<remarks></remarks>
+</member><member name="M:ACPLogistica.TCosteo.ABServicios">
+	<summary>
+ crear el enlace de los objetos visuales y las clases de la capa esquemas de los servicios
+ </summary>
+	<remarks></remarks>
+</member><member name="M:ACPLogistica.TCosteo.ABGastos">
+	<summary>
+ crear el enlace de los objetos visuales y las clases de la capa esquemas de los gastos
+ </summary>
+	<remarks></remarks>
+</member><member name="M:ACPLogistica.TCosteo.AyudaEntidad(System.String,System.String,ACEVentas.EEntidades.TipoEntidad)">
+	<summary>
+ ayuda para cargar la ayuda de entidad
+ </summary>
+	<param name="x_cadenas">Cadena a buscar</param>
+	<param name="x_campo">Campo por el cual se realiza la busqueda</param>
+	<param name="x_opcion"></param>
+	<remarks></remarks>
+</member><member name="M:ACPLogistica.TCosteo.cargarDatos">
+	<summary>
+ Cargar los datos de costeo a la grilla de busqueda
+ </summary>
+	<remarks></remarks>
+</member><member name="M:ACPLogistica.TCosteo.calcular">
+	<summary>
+ Proceso para calcular los valores numericos en la interfaz
+ </summary>
+	<remarks></remarks>
+</member><member name="M:ACPLogistica.TCosteo.setOrdenToDocCompra(System.String)">
+	<summary>
+ Convertir una orden de compra a documento de venta
+ </summary>
+	<param name="x_codigo"></param>
+	<remarks></remarks>
+</member><member name="M:ACPLogistica.TCosteo.nuevoCosteoCompra">
+	<summary>
+ Nuevo costeo, inicializa los controles necesarios para crear un nuevo costeo a partir de un documento 
+ de venta
+ </summary>
+	<remarks></remarks>
+</member><member name="M:ACPLogistica.TCosteo.busqueda(System.String,System.Boolean)">
+	<summary>
+ realizar la busqueda de los documentos de compra que pueden costearse
+ </summary>
+	<param name="x_cadena">Cadena que se busca</param>
+	<param name="x_documento">opcion para buscar por numero documento o cadena de texto</param>
+	<returns></returns>
+	<remarks></remarks>
+</member><member name="M:ACPLogistica.TCosteo.grabarCosteos(System.String@)">
+	<summary>
+ grabar en la base el costeo realizado
+ </summary>
+	<param name="m_msg"></param>
+	<returns></returns>
+	<remarks></remarks>
+</member><member name="M:ACPLogistica.TCosteo.getNroDocumentos">
+	<summary>
+ obtener los codigos de los respectivos items, como servicios, gastos, fletes y descuentos respectivos
+ </summary>
+	<remarks></remarks>
+</member><member name="M:ACPLogistica.TRegMerTransito.busqueda(System.String,System.Boolean)">
+	<summary>
+ Ejecutar la busqueda de una cadena en la tabla Neumaticos
+ </summary>
+	<param name="x_cadena">Cadena objetivo</param>
+	<returns></returns>
+</member><member name="M:ACPLogistica.TRegMerTransito.cargarDatos">
+	<summary>
+ Cargar los datos en el control Visual C1FlexGrid
+ </summary>
+</member><member name="M:ACPLogistica.TRegMerTransito.AsignarBinding">
+	<summary>
+ Realiza el enlace de los controles visuales con la clase esquema
+ </summary>
+</member><member name="T:ACPLogistica.DSDocumentosXCliente.DetalleDataTable">
+	<summary>
+Represents the strongly named DataTable class.
+</summary>
+</member><member name="T:ACPLogistica.DSDocumentosXCliente.CabeceraDataTable">
+	<summary>
+Represents the strongly named DataTable class.
+</summary>
+</member><member name="T:ACPLogistica.DSDocumentosXCliente.DetalleRow">
+	<summary>
+Represents strongly named DataRow class.
+</summary>
+</member><member name="T:ACPLogistica.DSDocumentosXCliente.CabeceraRow">
+	<summary>
+Represents strongly named DataRow class.
+</summary>
+</member><member name="T:ACPLogistica.DSDocumentosXCliente.DetalleRowChangeEvent">
+	<summary>
+Row event argument class
+</summary>
+</member><member name="T:ACPLogistica.DSDocumentosXCliente.CabeceraRowChangeEvent">
+	<summary>
+Row event argument class
+</summary>
+</member><member name="T:ACPLogistica.DSDocumentosXCliente">
+	<summary>
+Represents a strongly typed in-memory cache of data.
+</summary>
+</member><member name="M:ACPLogistica.MUsuarioPorAlmacen.formatearGrilla">
+	<summary>
+ Dar Formato a la grilla de busqueda
+ </summary>
+	<remarks></remarks>
+</member><member name="M:ACPLogistica.TOrdenCompra.CotizToOrden(ACELogistica.EABAS_CotizacionesCompra)">
+	<summary>
+ Convertir la cotizacion de compra a orden de compra, copiando todos los valores de la cotización de compra.
+ </summary>
+	<param name="x_eabas_cotizacionescompra"></param>
+	<remarks></remarks>
+</member><member name="M:ACPLogistica.TOrdenCompra.setRol(ACPLogistica.TOrdenCompra.Seteo)">
+	<summary>
+ Activar los controles segun los permisos o el rol que tiene el cliente
+ </summary>
+	<param name="x_opcion"></param>
+	<remarks></remarks>
+</member><member name="M:ACPLogistica.TOrdenCompra.cargarDatos">
+	<summary>
+ Cargar los datos en el control Visual C1FlexGrid
+ </summary>
+</member><member name="M:ACPLogistica.TOrdenCompra.AsignarBinding">
+	<summary>
+ Realiza el enlace de los controles visuales con la clase esquema
+ </summary>
+</member><member name="M:ACPLogistica.TOrdenCompra.busqueda(System.String)">
+	<summary>
+ Ejecutar la busqueda de una cadena en la tabla Neumaticos
+ </summary>
+	<param name="x_cadena">Cadena objetivo</param>
+	<returns></returns>
+</member><member name="T:ACPLogistica.DTOrdenCompra.OrdenCompraDataTable">
+	<summary>
+Represents the strongly named DataTable class.
+</summary>
+</member><member name="T:ACPLogistica.DTOrdenCompra.OrdenCompraDetalleDataTable">
+	<summary>
+Represents the strongly named DataTable class.
+</summary>
+</member><member name="T:ACPLogistica.DTOrdenCompra.OrdenCompraRow">
+	<summary>
+Represents strongly named DataRow class.
+</summary>
+</member><member name="T:ACPLogistica.DTOrdenCompra.OrdenCompraDetalleRow">
+	<summary>
+Represents strongly named DataRow class.
+</summary>
+</member><member name="T:ACPLogistica.DTOrdenCompra.OrdenCompraRowChangeEvent">
+	<summary>
+Row event argument class
+</summary>
+</member><member name="T:ACPLogistica.DTOrdenCompra.OrdenCompraDetalleRowChangeEvent">
+	<summary>
+Row event argument class
+</summary>
+</member><member name="T:ACPLogistica.DTOrdenCompra">
+	<summary>
+Represents a strongly typed in-memory cache of data.
+</summary>
+</member><member name="M:ACPLogistica.CProductos.formatearGrilla">
+	<summary>
+ Dar Formato a la grilla de busqueda
+ </summary>
+	<remarks></remarks>
+</member><member name="P:ACPLogistica.My.Resources.Resources.ResourceManager">
+	<summary>
+  Returns the cached ResourceManager instance used by this class.
+</summary>
+</member><member name="P:ACPLogistica.My.Resources.Resources.Culture">
+	<summary>
+  Overrides the current thread's CurrentUICulture property for all
+  resource lookups using this strongly typed resource class.
+</summary>
+</member><member name="P:ACPLogistica.My.Resources.Resources.aceptar_16x16">
+	<summary>
+  Looks up a localized resource of type System.Drawing.Bitmap.
+</summary>
+</member><member name="P:ACPLogistica.My.Resources.Resources.Aceptar_32x32">
+	<summary>
+  Looks up a localized resource of type System.Drawing.Bitmap.
+</summary>
+</member><member name="P:ACPLogistica.My.Resources.Resources.Anular_32x32">
+	<summary>
+  Looks up a localized resource of type System.Drawing.Bitmap.
+</summary>
+</member><member name="P:ACPLogistica.My.Resources.Resources.AnularConfirmar_16x16">
+	<summary>
+  Looks up a localized resource of type System.Drawing.Bitmap.
+</summary>
+</member><member name="P:ACPLogistica.My.Resources.Resources.AnularConfirmar_32x32">
+	<summary>
+  Looks up a localized resource of type System.Drawing.Bitmap.
+</summary>
+</member><member name="P:ACPLogistica.My.Resources.Resources.AppControl_16x16">
+	<summary>
+  Looks up a localized resource of type System.Drawing.Bitmap.
+</summary>
+</member><member name="P:ACPLogistica.My.Resources.Resources.AppLogistica_16x16">
+	<summary>
+  Looks up a localized resource of type System.Drawing.Bitmap.
+</summary>
+</member><member name="P:ACPLogistica.My.Resources.Resources.AppProduccion_16x16">
+	<summary>
+  Looks up a localized resource of type System.Drawing.Bitmap.
+</summary>
+</member><member name="P:ACPLogistica.My.Resources.Resources.AppVenta3_16x16">
+	<summary>
+  Looks up a localized resource of type System.Drawing.Bitmap.
+</summary>
+</member><member name="P:ACPLogistica.My.Resources.Resources.Buscar_32x32">
+	<summary>
+  Looks up a localized resource of type System.Drawing.Bitmap.
+</summary>
+</member><member name="P:ACPLogistica.My.Resources.Resources.Buscar2_16x16">
+	<summary>
+  Looks up a localized resource of type System.Drawing.Bitmap.
+</summary>
+</member><member name="P:ACPLogistica.My.Resources.Resources.Buscar2_32x32">
+	<summary>
+  Looks up a localized resource of type System.Drawing.Bitmap.
+</summary>
+</member><member name="P:ACPLogistica.My.Resources.Resources.Calculadora_16x16">
+	<summary>
+  Looks up a localized resource of type System.Drawing.Bitmap.
+</summary>
+</member><member name="P:ACPLogistica.My.Resources.Resources.Calculator_red_16x16">
+	<summary>
+  Looks up a localized resource of type System.Drawing.Bitmap.
+</summary>
+</member><member name="P:ACPLogistica.My.Resources.Resources.Calculator_red_32x32">
+	<summary>
+  Looks up a localized resource of type System.Drawing.Bitmap.
+</summary>
+</member><member name="P:ACPLogistica.My.Resources.Resources.Cancelar_16x16">
+	<summary>
+  Looks up a localized resource of type System.Drawing.Bitmap.
+</summary>
+</member><member name="P:ACPLogistica.My.Resources.Resources.Cancelar_32x32">
+	<summary>
+  Looks up a localized resource of type System.Drawing.Bitmap.
+</summary>
+</member><member name="P:ACPLogistica.My.Resources.Resources.CarnetSeguridad">
+	<summary>
+  Looks up a localized resource of type System.Drawing.Bitmap.
+</summary>
+</member><member name="P:ACPLogistica.My.Resources.Resources.Check_Proces_32x32">
+	<summary>
+  Looks up a localized resource of type System.Drawing.Bitmap.
+</summary>
+</member><member name="P:ACPLogistica.My.Resources.Resources.cheque_16x16">
+	<summary>
+  Looks up a localized resource of type System.Drawing.Bitmap.
+</summary>
+</member><member name="P:ACPLogistica.My.Resources.Resources.Cotizacion_16x16">
+	<summary>
+  Looks up a localized resource of type System.Drawing.Bitmap.
+</summary>
+</member><member name="P:ACPLogistica.My.Resources.Resources.Cotizacion_32x32">
+	<summary>
+  Looks up a localized resource of type System.Drawing.Bitmap.
+</summary>
+</member><member name="P:ACPLogistica.My.Resources.Resources.Defrag_16x16">
+	<summary>
+  Looks up a localized resource of type System.Drawing.Bitmap.
+</summary>
+</member><member name="P:ACPLogistica.My.Resources.Resources.Defrag_32x32">
+	<summary>
+  Looks up a localized resource of type System.Drawing.Bitmap.
+</summary>
+</member><member name="P:ACPLogistica.My.Resources.Resources.Delete_16x16">
+	<summary>
+  Looks up a localized resource of type System.Drawing.Bitmap.
+</summary>
+</member><member name="P:ACPLogistica.My.Resources.Resources.Delete_32x32">
+	<summary>
+  Looks up a localized resource of type System.Drawing.Bitmap.
+</summary>
+</member><member name="P:ACPLogistica.My.Resources.Resources.deposito_16x16">
+	<summary>
+  Looks up a localized resource of type System.Drawing.Bitmap.
+</summary>
+</member><member name="P:ACPLogistica.My.Resources.Resources.Documento_16x16">
+	<summary>
+  Looks up a localized resource of type System.Drawing.Bitmap.
+</summary>
+</member><member name="P:ACPLogistica.My.Resources.Resources.Documento_32x32">
+	<summary>
+  Looks up a localized resource of type System.Drawing.Bitmap.
+</summary>
+</member><member name="P:ACPLogistica.My.Resources.Resources.Documento_48x48">
+	<summary>
+  Looks up a localized resource of type System.Drawing.Bitmap.
+</summary>
+</member><member name="P:ACPLogistica.My.Resources.Resources.DocumentoSeguridad_16x16">
+	<summary>
+  Looks up a localized resource of type System.Drawing.Bitmap.
+</summary>
+</member><member name="P:ACPLogistica.My.Resources.Resources.DocumentoSeguridad_32x32">
+	<summary>
+  Looks up a localized resource of type System.Drawing.Bitmap.
+</summary>
+</member><member name="P:ACPLogistica.My.Resources.Resources.Edit_16x16">
+	<summary>
+  Looks up a localized resource of type System.Drawing.Bitmap.
+</summary>
+</member><member name="P:ACPLogistica.My.Resources.Resources.Edit_32x32">
+	<summary>
+  Looks up a localized resource of type System.Drawing.Bitmap.
+</summary>
+</member><member name="P:ACPLogistica.My.Resources.Resources.EditPaper_16x16">
+	<summary>
+  Looks up a localized resource of type System.Drawing.Bitmap.
+</summary>
+</member><member name="P:ACPLogistica.My.Resources.Resources.EditPaper_32x32">
+	<summary>
+  Looks up a localized resource of type System.Drawing.Bitmap.
+</summary>
+</member><member name="P:ACPLogistica.My.Resources.Resources.EMoney_16x16">
+	<summary>
+  Looks up a localized resource of type System.Drawing.Bitmap.
+</summary>
+</member><member name="P:ACPLogistica.My.Resources.Resources.EMoney_32x32">
+	<summary>
+  Looks up a localized resource of type System.Drawing.Bitmap.
+</summary>
+</member><member name="P:ACPLogistica.My.Resources.Resources.Entidad_16x16">
+	<summary>
+  Looks up a localized resource of type System.Drawing.Bitmap.
+</summary>
+</member><member name="P:ACPLogistica.My.Resources.Resources.EntidadAccesos_16x16">
+	<summary>
+  Looks up a localized resource of type System.Drawing.Bitmap.
+</summary>
+</member><member name="P:ACPLogistica.My.Resources.Resources.Excel2_32x32">
+	<summary>
+  Looks up a localized resource of type System.Drawing.Bitmap.
+</summary>
+</member><member name="P:ACPLogistica.My.Resources.Resources.Exit_32x32">
+	<summary>
+  Looks up a localized resource of type System.Drawing.Bitmap.
+</summary>
+</member><member name="P:ACPLogistica.My.Resources.Resources.Extraer_16x16">
+	<summary>
+  Looks up a localized resource of type System.Drawing.Bitmap.
+</summary>
+</member><member name="P:ACPLogistica.My.Resources.Resources.Extraer_32x32">
+	<summary>
+  Looks up a localized resource of type System.Drawing.Bitmap.
+</summary>
+</member><member name="P:ACPLogistica.My.Resources.Resources.FAbajo_16x16">
+	<summary>
+  Looks up a localized resource of type System.Drawing.Bitmap.
+</summary>
+</member><member name="P:ACPLogistica.My.Resources.Resources.FAbajo_32x32">
+	<summary>
+  Looks up a localized resource of type System.Drawing.Bitmap.
+</summary>
+</member><member name="P:ACPLogistica.My.Resources.Resources.Factura_16x16">
+	<summary>
+  Looks up a localized resource of type System.Drawing.Bitmap.
+</summary>
+</member><member name="P:ACPLogistica.My.Resources.Resources.Factura_32x32">
+	<summary>
+  Looks up a localized resource of type System.Drawing.Bitmap.
+</summary>
+</member><member name="P:ACPLogistica.My.Resources.Resources.FArriba_16x16">
+	<summary>
+  Looks up a localized resource of type System.Drawing.Bitmap.
+</summary>
+</member><member name="P:ACPLogistica.My.Resources.Resources.FArriba_32x32">
+	<summary>
+  Looks up a localized resource of type System.Drawing.Bitmap.
+</summary>
+</member><member name="P:ACPLogistica.My.Resources.Resources.Grabar_32x32">
+	<summary>
+  Looks up a localized resource of type System.Drawing.Bitmap.
+</summary>
+</member><member name="P:ACPLogistica.My.Resources.Resources.Guia_16x16">
+	<summary>
+  Looks up a localized resource of type System.Drawing.Bitmap.
+</summary>
+</member><member name="P:ACPLogistica.My.Resources.Resources.Guia_32x32">
+	<summary>
+  Looks up a localized resource of type System.Drawing.Bitmap.
+</summary>
+</member><member name="P:ACPLogistica.My.Resources.Resources.GuiaProc_16x16">
+	<summary>
+  Looks up a localized resource of type System.Drawing.Bitmap.
+</summary>
+</member><member name="P:ACPLogistica.My.Resources.Resources.GuiaProc_32x32">
+	<summary>
+  Looks up a localized resource of type System.Drawing.Bitmap.
+</summary>
+</member><member name="P:ACPLogistica.My.Resources.Resources.hidemenu">
+	<summary>
+  Looks up a localized resource of type System.Drawing.Bitmap.
+</summary>
+</member><member name="P:ACPLogistica.My.Resources.Resources.ImprimirRed_32x32">
+	<summary>
+  Looks up a localized resource of type System.Drawing.Bitmap.
+</summary>
+</member><member name="P:ACPLogistica.My.Resources.Resources.ImprimirReporte_16x16">
+	<summary>
+  Looks up a localized resource of type System.Drawing.Bitmap.
+</summary>
+</member><member name="P:ACPLogistica.My.Resources.Resources.ImprimirReporte_32x32">
+	<summary>
+  Looks up a localized resource of type System.Drawing.Bitmap.
+</summary>
+</member><member name="P:ACPLogistica.My.Resources.Resources.Ingresa_16x16">
+	<summary>
+  Looks up a localized resource of type System.Drawing.Bitmap.
+</summary>
+</member><member name="P:ACPLogistica.My.Resources.Resources.Ingresa_32x32">
+	<summary>
+  Looks up a localized resource of type System.Drawing.Bitmap.
+</summary>
+</member><member name="P:ACPLogistica.My.Resources.Resources.letra_16x16">
+	<summary>
+  Looks up a localized resource of type System.Drawing.Bitmap.
+</summary>
+</member><member name="P:ACPLogistica.My.Resources.Resources.Logo_001_300x224">
+	<summary>
+  Looks up a localized resource of type System.Drawing.Bitmap.
+</summary>
+</member><member name="P:ACPLogistica.My.Resources.Resources.Logo_Sistema_419x63">
+	<summary>
+  Looks up a localized resource of type System.Drawing.Bitmap.
+</summary>
+</member><member name="P:ACPLogistica.My.Resources.Resources.Mostrar_16x16">
+	<summary>
+  Looks up a localized resource of type System.Drawing.Bitmap.
+</summary>
+</member><member name="P:ACPLogistica.My.Resources.Resources.NotaCredito_16x16">
+	<summary>
+  Looks up a localized resource of type System.Drawing.Bitmap.
+</summary>
+</member><member name="P:ACPLogistica.My.Resources.Resources.Nuevo_16x16">
+	<summary>
+  Looks up a localized resource of type System.Drawing.Bitmap.
+</summary>
+</member><member name="P:ACPLogistica.My.Resources.Resources.Nuevo_32x32">
+	<summary>
+  Looks up a localized resource of type System.Drawing.Bitmap.
+</summary>
+</member><member name="P:ACPLogistica.My.Resources.Resources.ok">
+	<summary>
+  Looks up a localized resource of type System.Drawing.Bitmap.
+</summary>
+</member><member name="P:ACPLogistica.My.Resources.Resources.Personas_32x32">
+	<summary>
+  Looks up a localized resource of type System.Drawing.Bitmap.
+</summary>
+</member><member name="P:ACPLogistica.My.Resources.Resources.Procesos_32x32">
+	<summary>
+  Looks up a localized resource of type System.Drawing.Bitmap.
+</summary>
+</member><member name="P:ACPLogistica.My.Resources.Resources.Rehusar_32x32">
+	<summary>
+  Looks up a localized resource of type System.Drawing.Bitmap.
+</summary>
+</member><member name="P:ACPLogistica.My.Resources.Resources.Reporte_32x32">
+	<summary>
+  Looks up a localized resource of type System.Drawing.Bitmap.
+</summary>
+</member><member name="P:ACPLogistica.My.Resources.Resources.RightAll_16x16">
+	<summary>
+  Looks up a localized resource of type System.Drawing.Bitmap.
+</summary>
+</member><member name="P:ACPLogistica.My.Resources.Resources.Search_files_32x32">
+	<summary>
+  Looks up a localized resource of type System.Drawing.Bitmap.
+</summary>
+</member><member name="P:ACPLogistica.My.Resources.Resources.Search_files_32x321">
+	<summary>
+  Looks up a localized resource of type System.Drawing.Bitmap.
+</summary>
+</member><member name="P:ACPLogistica.My.Resources.Resources.SendBoxes_16x16">
+	<summary>
+  Looks up a localized resource of type System.Drawing.Bitmap.
+</summary>
+</member><member name="P:ACPLogistica.My.Resources.Resources.SendBoxes_32x32">
+	<summary>
+  Looks up a localized resource of type System.Drawing.Bitmap.
+</summary>
+</member><member name="P:ACPLogistica.My.Resources.Resources.showmenu">
+	<summary>
+  Looks up a localized resource of type System.Drawing.Bitmap.
+</summary>
+</member><member name="P:ACPLogistica.My.Resources.Resources.shutdown">
+	<summary>
+  Looks up a localized resource of type System.Drawing.Bitmap.
+</summary>
+</member><member name="P:ACPLogistica.My.Resources.Resources.StartMenu_32x32">
+	<summary>
+  Looks up a localized resource of type System.Drawing.Bitmap.
+</summary>
+</member><member name="P:ACPLogistica.My.Resources.Resources.SucursalSeguridad_16x16">
+	<summary>
+  Looks up a localized resource of type System.Drawing.Bitmap.
+</summary>
+</member><member name="P:ACPLogistica.My.Resources.Resources.SucursalSeguridad_32x32">
+	<summary>
+  Looks up a localized resource of type System.Drawing.Bitmap.
+</summary>
+</member><member name="P:ACPLogistica.My.Resources.Resources.Volver_32x32">
+	<summary>
+  Looks up a localized resource of type System.Drawing.Bitmap.
+</summary>
+</member><member name="P:ACPLogistica.My.Resources.Resources.Wallpaper_Logistica_1024x768">
+	<summary>
+  Looks up a localized resource of type System.Drawing.Bitmap.
+</summary>
+</member><member name="P:ACPLogistica.My.Resources.Resources.Wallpaper_Promasa_1204X903">
+	<summary>
+  Looks up a localized resource of type System.Drawing.Bitmap.
+</summary>
+</member><member name="T:ACPLogistica.My.Resources.Resources">
+	<summary>
+  A strongly-typed resource class, for looking up localized strings, etc.
+</summary>
+</member><member name="M:ACPLogistica.TReqCompras.setRol(ACPLogistica.Constantes.Seteo)">
+	<summary>
+ Activar los controles segun los permisos o el rol que tiene el cliente
+ </summary>
+	<param name="x_opcion"></param>
+	<remarks></remarks>
+</member><member name="M:ACPLogistica.TReqCompras.subirItem">
+	<summary>
+ Subir item a los controles para iniciar su edicion
+ </summary>
+	<remarks></remarks>
+</member><member name="M:ACPLogistica.TReqCompras.getFilterRol">
+	<summary>
+ Filtrar segun el rol
+ </summary>
+	<returns></returns>
+	<remarks></remarks>
+</member><member name="M:ACPLogistica.TReqCompras.addDetalle">
+	<summary>
+ Agregar un registro al detalle de compra
+ </summary>
+	<returns></returns>
+	<remarks></remarks>
+</member><member name="M:ACPLogistica.TReqCompras.getCampo">
+	<summary>
+ Obtener el campo por el cual se realizara la busqueda
+ </summary>
+	<returns></returns>
+	<remarks></remarks>
+</member><member name="M:ACPLogistica.TReqCompras.validar(System.String@)">
+	<summary>
+ validar los datos de la requisicion de compra para inicial el procesa de grabado en la base de datos
+ </summary>
+	<param name="m_msg">Mensaje devuelto en caso de existir error</param>
+	<returns></returns>
+	<remarks></remarks>
+</member><member name="M:ACPLogistica.TReqCompras.ValidarDetalle(System.String@)">
+	<summary>
+ Validar el detalle del documento requisicion de compra,valida si se han ingresado las cantidades adecuadamente
+ </summary>
+	<param name="m_msg">Mensaje devuelto con la descripción del error en caso de existir</param>
+	<returns></returns>
+	<remarks></remarks>
+</member><member name="M:ACPLogistica.TReqCompras.formatearGrilla">
+	<summary>
+ Dar formato a la grillas para la carga de datos
+ </summary>
+	<remarks></remarks>
+</member><member name="M:ACPLogistica.TReqCompras.setInstancia(ACFramework.ACUtilitarios.ACSetInstancia)">
+	<summary>
+ Dar la instancia de los objetos segun la opcion, activando y/o desactivando las interfaces
+ </summary>
+	<param name="_opcion"></param>
+	<remarks></remarks>
+</member><member name="M:ACPLogistica.TReqCompras.setInstanciaModificar(System.Boolean)">
+	<summary>
+ Dar instancia de activacion para la modificación de los registros
+ </summary>
+	<param name="x_opcion"></param>
+	<remarks></remarks>
+</member><member name="M:ACPLogistica.TReqCompras.setProducto(System.Boolean)">
+	<summary>
+ cargar los datos del articulo a los controles visuales
+ </summary>
+	<param name="x_opcion"></param>
+	<remarks></remarks>
+</member><member name="M:ACPLogistica.TReqCompras.cargarDatos">
+	<summary>
+ Cargar los datos en el control Visual C1FlexGrid
+ </summary>
+</member><member name="M:ACPLogistica.TReqCompras.AsignarBinding">
+	<summary>
+ Realiza el enlace de los controles visuales con la clase esquema
+ </summary>
+</member><member name="M:ACPLogistica.TReqCompras.AyudaEntidad(System.String,System.String,ACEVentas.EEntidades.TipoEntidad)">
+	<summary>
+ Cargar la ayuda de las entidades proveedor
+ </summary>
+	<param name="x_cadenas">Cadena de busqueda</param>
+	<param name="x_campo">campo al que va a ser referencia la busqueda</param>
+	<param name="x_opcion">opcion de tipo de entidad</param>
+	<remarks></remarks>
+</member><member name="M:ACPLogistica.TReqCompras.busqueda(System.String)">
+	<summary>
+ Realizar la busqueda de requisiciones de compra
+ </summary>
+	<param name="x_cadena">Cadena de busqueda de requisiciones</param>
+	<returns></returns>
+	<remarks></remarks>
+</member><member name="M:ACPLogistica.TReqCompras.grabarRequiCompra(System.String@)">
+	<summary>
+ Grabar la requisicion de compra en la base de datos
+ </summary>
+	<param name="m_msg">Mensaje devuelto en caso de ocurrir alguna incidencia</param>
+	<returns></returns>
+	<remarks></remarks>
+</member><member name="M:ACPLogistica.TReqCompras.nuevaRequisicion">
+	<summary>
+ Crear nueva requisicion de compra
+ </summary>
+	<remarks></remarks>
+</member><member name="M:ACPLogistica.TReqCompras.OrdenarPedidos(System.String)">
+	<summary>
+ Ordenar la grilla de requisiciones de compra
+ </summary>
+	<param name="x_columna"></param>
+	<remarks></remarks>
+</member>
+</members>
+</doc>

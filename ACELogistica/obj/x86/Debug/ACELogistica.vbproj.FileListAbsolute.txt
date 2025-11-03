@@ -1,0 +1,5 @@
+E:\ProyectosVB_2012\Logistica-31-10-2025\Logistica\ACELogistica\obj\x86\Debug\ACELogistica.vbprojAssemblyReference.cache
+E:\ProyectosVB_2012\Logistica-31-10-2025\Logistica\ACELogistica\obj\x86\Debug\ACELogistica.Resources.resources
+E:\ProyectosVB_2012\Logistica-31-10-2025\Logistica\ACELogistica\obj\x86\Debug\ACELogistica.vbproj.GenerateResource.cache
+E:\ProyectosVB_2012\Logistica-31-10-2025\Logistica\ACELogistica\obj\x86\Debug\ACELogistica.vbproj.CoreCompileInputs.cache
+E:\ProyectosVB_2012\Logistica-31-10-2025\Logistica\ACELogistica\obj\x86\Debug\ACELogistica.pdb
