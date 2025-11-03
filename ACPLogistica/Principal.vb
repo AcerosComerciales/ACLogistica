@@ -697,6 +697,7 @@ Public Class Principal
    Private Sub ListadoAgrupadoToolStripMenuItem_Click(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles ListAgruToolStripMenuItem.Click
       Dim frmRArticulo As New RListadoArticulos() With {.MdiParent = Me, .StartPosition = FormStartPosition.CenterScreen, .WindowState = FormWindowState.Maximized}
       frmRArticulo.Show()
+
    End Sub
 
    Private Sub ListadoSimpleToolStripMenuItem_Click(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles ListadoSimpleToolStripMenuItem.Click
